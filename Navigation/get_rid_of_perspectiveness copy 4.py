@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 # Load the image
-img = cv.imread("NEW_Environment_1.png")
+img = cv.imread(".NEW_Environment_1.png")
 #img = cv.resize(img, (img.shape[:2][1] * 2, img.shape[:2][0] * 2), interpolation = cv.INTER_CUBIC)
 
 src_points = []

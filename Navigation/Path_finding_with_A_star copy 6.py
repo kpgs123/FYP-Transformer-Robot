@@ -6,7 +6,8 @@ import heapq
 
 
 # Load the image
-img = cv.imread("NEW_Environment_3.png")
+img = cv.imread("D:/Git/FYP-Transformer-Robot/Navigation/NEW_Environment_3.png")
+
 #img = cv.resize(img, (img.shape[:2][1] * 2, img.shape[:2][0] * 2), interpolation = cv.INTER_CUBIC)
 
 src_points = []
@@ -192,9 +193,9 @@ def heuristic(pos, goal):
     x1, y1 = pos
     x2, y2 = goal
 
-    #return abs((x1 - x2) + abs(y1 - y2) #euclidean_distance
+    return abs(x1 - x2) + abs(y1 - y2) #manhattan_distance
     
-    return math.sqrt((x1 - x2)**2 + (y1 - y2)**2) #manhattan_distance
+    #return math.sqrt((x1 - x2)**2 + (y1 - y2)**2) #euclidean_distance
 
     #return max(abs(x1 - x2), abs(y1 - y2)) #chebyshev_distance
 
