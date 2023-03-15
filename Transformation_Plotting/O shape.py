@@ -15,5 +15,5 @@ ax.add_artist(circle)
 ax.set_xlim(-50, 50)
 ax.set_ylim(-40, 60)
 
-ax.plot(x,y)
+ax.plot(x,y, color= 'blue')
 plt.show()

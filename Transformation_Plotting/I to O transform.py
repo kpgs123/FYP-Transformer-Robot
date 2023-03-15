@@ -30,11 +30,11 @@ ax.set_xlim(-50, 50)
 ax.set_ylim(-40, 60)
 
 # plot data on the axis
-ax.plot(x,y)
-ax.plot(x1,y1)
-ax.plot(x2,y2)
-ax.plot(x3,y3)
-ax.plot(x4,y4)
+ax.plot(x,y, color='blue')
+ax.plot(x1,y1, color='blue')
+ax.plot(x2,y2, color='blue')
+ax.plot(x3,y3, color='blue')
+ax.plot(x4,y4,color='blue' )
 
 # show the plot
 plt.show()
