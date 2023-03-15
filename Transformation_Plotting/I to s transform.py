@@ -20,15 +20,17 @@ x5 = np.linspace(-32.5416, -25.5, 1000)
 y5 = -np.sqrt(17**2*2 -(x5 + 8.5)**2) + 25.5
 
 # create a figure 
-plt.figure()
+fig, ax = plt.subplots()
+ax.set_aspect('equal') # Set the aspect ratio to 1:1
+
 
 # plot data on the axis
-plt.plot(x,y)
-plt.plot(x1,y1)
-plt.plot(x2,y2)
-plt.plot(x3,y3)
-plt.plot(x4,y4)
-plt.plot(x5,y5)
+ax.plot(x,y, color= 'blue')
+ax.plot(x1,y1, color= 'blue')
+ax.plot(x2,y2, color= 'blue')
+ax.plot(x3,y3, color= 'blue')
+ax.plot(x4,y4, color= 'blue')
+ax.plot(x5,y5, color= 'blue')
 
 # show the plot
 plt.show()
