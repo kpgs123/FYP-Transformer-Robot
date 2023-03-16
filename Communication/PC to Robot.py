@@ -3,6 +3,7 @@ import time
 
 # Replace "/dev/tty.SLAB_USBtoUART" with the Bluetooth serial port of your ESP32
 ser = serial.Serial('COM9', 9600, timeout=1)
+time.sleep(20)
 
 while True:
 # Receive data from ESP32 in Python
