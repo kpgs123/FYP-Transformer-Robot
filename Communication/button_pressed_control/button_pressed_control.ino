@@ -45,37 +45,37 @@ void loop() {
       SerialBT.println("moved left");
     }
     else if (x == "9"){
-      my_robot.MoveDiagUpRight(10);
+      my_robot.MoveDiagUpRight(25);
       delay(500);
       my_robot.stopSmorphi();
       SerialBT.println("moved DiagUpRight");
     }
     else if (x == "7"){
-      my_robot.MoveDiagUpLeft(10);
+      my_robot.MoveDiagUpLeft(25);
       delay(500);
       my_robot.stopSmorphi();
       SerialBT.println("moved DiagUpLeft");
     }
     else if (x == "3"){
-      my_robot.MoveDiagDownRight(10);
+      my_robot.MoveDiagDownRight(25);
       delay(500);
       my_robot.stopSmorphi();
       SerialBT.println("moved DiagDownRight");
     }
     else if (x == "1"){
-      my_robot.MoveDiagDownLeft(10);
+      my_robot.MoveDiagDownLeft(25);
       delay(500);
       my_robot.stopSmorphi();
       SerialBT.println("moved DiagDownLeft");
     }   
     else if (x == "a"){
-      my_robot.CenterPivotLeft(10);
+      my_robot.CenterPivotLeft(100);
       delay(500);
       my_robot.stopSmorphi();
       SerialBT.println("turned CenterPivotLeft");
     }
     else if (x == "c"){
-      my_robot.CenterPivotRight(10);
+      my_robot.CenterPivotRight(100);
       delay(500);
       my_robot.stopSmorphi();
       SerialBT.println("turned CenterPivotRight");
