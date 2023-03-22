@@ -3,22 +3,22 @@ from matplotlib.patches import Circle
 import numpy as np
 # create data
 x = [-8.5,8.5,8.5,25.5]
-y = [-25.5,-25.5,8.5,8.5]
+y = [-42.5,-42.5,-8.5,-8.5]
 
 x1 = np.linspace(25.5, 32.5416, 1000)
-y1 = np.sqrt(17**2*2 -(x1 - 8.5)**2)-8.5
+y1 = np.sqrt(17**2*2 -(x1 - 8.5)**2)-25.5
 
 x2 = np.linspace(-8.5, 32.5416, 1000)
-y2 = -np.sqrt(17**2*2 -(x2 - 8.5)**2)-8.5
+y2 = -np.sqrt(17**2*2 -(x2 - 8.5)**2)-25.5
 
 x3 = [8.5,-8.5,-8.5,-25.5]
-y3 = [42.5,42.5,8.5,8.5]
+y3 = [25.5,25.5,-8.5,-8.5]
 
 x4 = np.linspace(8.5, -32.5416, 1000)
-y4 = np.sqrt(17**2*2 -(x4 + 8.5)**2) + 25.5
+y4 = np.sqrt(17**2*2 -(x4 + 8.5)**2) + 8.5
 
 x5 = np.linspace(-32.5416, -25.5, 1000)
-y5 = -np.sqrt(17**2*2 -(x5 + 8.5)**2) + 25.5
+y5 = -np.sqrt(17**2*2 -(x5 + 8.5)**2) + 8.5
 
 # create a figure 
 fig, ax = plt.subplots()
@@ -32,7 +32,7 @@ ax.add_artist(circle)
 
 # Set the axis limits
 ax.set_xlim(-50, 50)
-ax.set_ylim(-40, 60)
+ax.set_ylim(-60, 60)
 # plot data on the axis
 ax.plot(x,y, color= 'blue')
 ax.plot(x1,y1, color= 'blue')

@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 x = [8.5,8.5,-25.5,-25.5,8.5]
-y = [25.5,-8.5,-8.5,25.5,25.5]
+y = [8.5,-25.5,-25.5,8.5,8.5]
 
 fig, ax = plt.subplots()
 ax.set_aspect('equal') # Set the aspect ratio to 1:1
@@ -13,7 +13,7 @@ ax.add_artist(circle)
 
 # Set the axis limits
 ax.set_xlim(-50, 50)
-ax.set_ylim(-40, 60)
+ax.set_ylim(-60, 60)
 
 ax.plot(x,y, color= 'blue')
 plt.show()
