@@ -20,6 +20,19 @@ y4 = -np.sqrt(17**2*2 -(x4 + 8.5)**2) - 25.5
 fig, ax = plt.subplots()
 ax.set_aspect('equal') # Set the aspect ratio to 1:1
 
+coordinates=[]
+for i in range(len(x)-1):
+    coordinates.append((x[i],y[i]))
+for j in range(len(x1)-1):
+    coordinates.append((x1[j],y1[j]))
+for k in range(len(x2)-1):
+    coordinates.append((x2[k],y2[k]))
+for l in range(len(x3)-1):
+    coordinates.append((x3[l],y3[l]))
+for m in range(len(x4)-1):
+    coordinates.append((x4[m],y4[m]))    
+print(coordinates)
+
 circle = Circle((0, 0), radius=1, edgecolor='red', facecolor='red')
 
 # Add the circle to the axes

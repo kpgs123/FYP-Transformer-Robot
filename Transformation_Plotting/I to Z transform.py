@@ -20,6 +20,20 @@ y4 = np.sqrt(17**2*2 -(x4 + 8.5)**2) + 8.5
 x5 = np.linspace(-32.5416, -25.5, 1000)
 y5 = -np.sqrt(17**2*2 -(x5 + 8.5)**2) + 8.5
 
+coordinates=[]
+for i in range(len(x)-1):
+    coordinates.append((x[i],y[i]))
+for j in range(len(x1)-1):
+    coordinates.append((x1[j],y1[j]))
+for k in range(len(x2)-1):
+    coordinates.append((x2[k],y2[k]))
+for l in range(len(x3)-1):
+    coordinates.append((x3[l],y3[l]))
+for m in range(len(x4)-1):
+    coordinates.append((x4[m],y4[m])) 
+for n in range(len(x5)-1):
+    coordinates.append((x5[n],y5 [n]))   
+print(coordinates)
 # create a figure 
 fig, ax = plt.subplots()
 ax.set_aspect('equal') # Set the aspect ratio to 1:1

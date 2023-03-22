@@ -10,6 +10,16 @@ y1 = np.sqrt(17**2*2 -(x1 + 8.5)**2)-25.5
 
 x2 = np.linspace(8.5, -32.5416, 1000)
 y2 = -np.sqrt(17**2*2 -(x2 + 8.5)**2)-25.5
+
+coordinates=[]
+for i in range(len(x)-1):
+    coordinates.append((x[i],y[i]))
+for j in range(len(x1)-1):
+    coordinates.append((x1[j],y1[j]))
+for k in range(len(x2)-1):
+    coordinates.append((x2[k],y2[k]))
+    
+print(coordinates)
 fig, ax = plt.subplots()
 ax.set_aspect('equal') # Set the aspect ratio to 1:1
 circle = Circle((0, 0), radius=1, edgecolor='red', facecolor='red')
