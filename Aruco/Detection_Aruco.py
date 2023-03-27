@@ -6,13 +6,13 @@ import time
 dict_aruco = aruco.Dictionary_get(aruco.DICT_4X4_50)
 parameters = aruco.DetectorParameters_create()
 
-cap = cv2.VideoCapture('G:/sem 7/FYP/Git/FYP-Transformer-Robot/FYP Videos/2_res_Trim.mp4')
+cap = cv2.VideoCapture('G:/sem 7/FYP/Git/FYP-Transformer-Robot/FYP Videos/1_res.mp4')
 
 try:
     while True:
         ret, frame = cap.read()
         gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
-
+        #cv2.imshow('frame2',gray)
         corners, ids, rejectedImgPoints = aruco.detectMarkers(gray, dict_aruco, parameters=parameters)
 
         frame_markers = aruco.drawDetectedMarkers(frame.copy(), corners, ids)
