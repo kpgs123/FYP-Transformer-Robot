@@ -5,9 +5,10 @@ import time
 
 dict_aruco = aruco.Dictionary_get(aruco.DICT_4X4_50)
 parameters = aruco.DetectorParameters_create()
+url= 'http://10.10.2.198:8080/video'
 
-cap = cv2.VideoCapture('G:/sem 7/FYP/Git/FYP-Transformer-Robot/FYP Videos/1_res.mp4')
-
+#cap = cv2.VideoCapture('G:/sem 7/FYP/Git/FYP-Transformer-Robot/FYP Videos/1_res.mp4')
+cap = cv2.VideoCapture(url)
 try:
     while True:
         ret, frame = cap.read()
