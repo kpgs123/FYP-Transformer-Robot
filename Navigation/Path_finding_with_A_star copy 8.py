@@ -3,6 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 import heapq
+import keyboard
+import serial
+import time
 
 
 # Load the image
@@ -294,7 +297,7 @@ for ind in range(len(path) -1):
 plt.imshow(new_img)
 plt.show()
 
-orientations = np.zeros((len(path) - 1))
+orientations = np.empty((len(path) - 1), dtype='|S11')
 
 for node_index in range(len(path)-1):
    x2, y2 = path[node_index + 1]
@@ -309,7 +312,39 @@ for node_index in range(len(path)-1):
        direction = "down"
     else:
        direction = "up"
+   elif x2 - x1 > 0 and y2 - y1 > 0:
+      direction = "topRight"
+   elif x2 - x1 < 0 and y2 - y1 > 0:
+      direction = "topLeft"
+   elif x2 - x1 < 0 and y2 - y1 < 0:
+      direction = "bottomLeft"
+   elif x2 - x1 > 0 and y2 - y1 < 0:
+      direction = "bottomRight"
     
    orientations[node_index] = direction
 
 print(orientations)
+
+scale_factor = 12
+
+# Replace "/dev/tty.SLAB_USBtoUART" with the Bluetooth serial port of your ESP32
+ser = serial.Serial('COM9', 9600, timeout=1)
+
+# Define a variable to keep track of the last key press time
+last_key_press_time = time.monotonic()
+
+# Define a callback function to handle key presses
+def sendNode(node, oreintation):
+    t1 = time.time()
+    while t2 - t1 < 2:
+        ser.write(oreintation.encode())
+        time.sleep(0.5)
+        t2 = time.time()
+
+# Keep the program running to allow key presses to be detected
+while True:
+    data = ser.readline()
+    s = data.decode()
+    s = s[:-2]
+    if len(s):
+        print(s)
