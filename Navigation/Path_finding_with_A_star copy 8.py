@@ -328,23 +328,26 @@ print(orientations)
 scale_factor = 12
 
 # Replace "/dev/tty.SLAB_USBtoUART" with the Bluetooth serial port of your ESP32
-ser = serial.Serial('COM9', 9600, timeout=1)
-
-# Define a variable to keep track of the last key press time
-last_key_press_time = time.monotonic()
+ser = serial.Serial('COM7', 9600, timeout=20)
 
 # Define a callback function to handle key presses
-def sendNode(node, oreintation):
+def sendNode(oreintation):
     t1 = time.time()
     while t2 - t1 < 2:
         ser.write(oreintation.encode())
         time.sleep(0.5)
         t2 = time.time()
 
-# Keep the program running to allow key presses to be detected
+for i in orientations:
+   sendNode(i)
+
+while True:
+   pass
+
+'''# Keep the program running to allow key presses to be detected
 while True:
     data = ser.readline()
     s = data.decode()
     s = s[:-2]
     if len(s):
-        print(s)
+        print(s)'''
