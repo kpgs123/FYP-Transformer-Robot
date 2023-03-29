@@ -297,29 +297,29 @@ for ind in range(len(path) -1):
 plt.imshow(new_img)
 plt.show()
 
-orientations = np.empty((len(path) - 1), dtype='|S11')
+orientations = np.chararray((len(path) - 1))
 
 for node_index in range(len(path)-1):
    x2, y2 = path[node_index + 1]
    x1, y1 = path[node_index]
    if x2 - x1 == 0:
     if y2 - y1 > 0:
-       direction = "left"
+       direction = '4'
     else:
-       direction = "right"
+       direction = '6'
    elif y2 - y1 == 0:
     if x2 - x1 > 0:
-       direction = "down"
+       direction = '2'
     else:
-       direction = "up"
+       direction = '8'
    elif x2 - x1 > 0 and y2 - y1 > 0:
-      direction = "topRight"
+      direction = '9'
    elif x2 - x1 < 0 and y2 - y1 > 0:
-      direction = "topLeft"
+      direction = '7'
    elif x2 - x1 < 0 and y2 - y1 < 0:
-      direction = "bottomLeft"
+      direction = '1'
    elif x2 - x1 > 0 and y2 - y1 < 0:
-      direction = "bottomRight"
+      direction = '3'
     
    orientations[node_index] = direction
 
@@ -328,26 +328,27 @@ print(orientations)
 scale_factor = 12
 
 # Replace "/dev/tty.SLAB_USBtoUART" with the Bluetooth serial port of your ESP32
-ser = serial.Serial('COM7', 9600, timeout=20)
+ser = serial.Serial('COM9', 9600, timeout=20)
 
 # Define a callback function to handle key presses
 def sendNode(oreintation):
     t1 = time.time()
+    t2 = time.time()
     while t2 - t1 < 2:
-        ser.write(oreintation.encode())
+        ser.write(str(oreintation).encode())
         time.sleep(0.5)
         t2 = time.time()
 
-for i in orientations:
-   sendNode(i)
+'''for i in orientations:
+   sendNode(i)'''
 
-while True:
-   pass
-
-'''# Keep the program running to allow key presses to be detected
-while True:
+# Keep the program running to allow key presses to be detected
+i = 0
+while i < len(orientations) - 1:
+    sendNode(i)
     data = ser.readline()
     s = data.decode()
     s = s[:-2]
     if len(s):
-        print(s)'''
+        print(s)
+    i += 1
