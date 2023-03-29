@@ -297,7 +297,7 @@ for ind in range(len(path) -1):
 plt.imshow(new_img)
 plt.show()
 
-orientations = np.chararray((len(path) - 1))
+orientations = []
 
 for node_index in range(len(path)-1):
    x2, y2 = path[node_index + 1]
@@ -321,7 +321,7 @@ for node_index in range(len(path)-1):
    elif x2 - x1 > 0 and y2 - y1 < 0:
       direction = '3'
     
-   orientations[node_index] = direction
+   orientations.append(direction)
 
 print(orientations)
 
@@ -345,7 +345,7 @@ def sendNode(oreintation):
 # Keep the program running to allow key presses to be detected
 i = 0
 while i < len(orientations) - 1:
-    sendNode(i)
+    sendNode(orientations[i])
     data = ser.readline()
     s = data.decode()
     s = s[:-2]
