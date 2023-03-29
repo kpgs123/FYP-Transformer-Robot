@@ -8,7 +8,8 @@ parameters = aruco.DetectorParameters_create()
 url = 0
 path = np.empty((0, 2), float)
 
-cap = cv2.VideoCapture(url)
+cap = cv2.VideoCapture('G:/sem 7/FYP/Git/FYP-Transformer-Robot/FYP Videos/1_res.mp4')
+#cap = cv2.VideoCapture(url)
 no_marker_count = 0
 Threshold_no_marker = 55
 
