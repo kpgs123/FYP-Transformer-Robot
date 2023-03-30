@@ -115,6 +115,10 @@ void loop() {
       delay(100);
       SerialBT.println("Transformed to Z shape");
     }
+    my_robot.sm_reset_M1();
+    my_robot.sm_reset_M2();
+    my_robot.sm_reset_M3();
+    my_robot.sm_reset_M4();
 
   }
   
