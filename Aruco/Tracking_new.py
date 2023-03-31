@@ -35,7 +35,7 @@ try:
             no_marker_count += 1
             if no_marker_count >= Threshold_no_marker:
                 print("Cannot find aruco marker for" , Threshold_no_marker, "consecutive frames.")
-                break
+                
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
