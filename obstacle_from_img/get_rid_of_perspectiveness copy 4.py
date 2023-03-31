@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 
 
 # Load the image
-img = cv.imread(".NEW_Environment_1.png")
-#img = cv.resize(img, (img.shape[:2][1] * 2, img.shape[:2][0] * 2), interpolation = cv.INTER_CUBIC)
+img = cv.imread("/home/geethaka/Documents/Git/FYP-Transformer-Robot/obstacle_from_img/new.jpg")
+img = cv.resize(img, (img.shape[:2][1] // 4, img.shape[:2][0] // 4), interpolation = cv.INTER_CUBIC)
 
 src_points = []
 
