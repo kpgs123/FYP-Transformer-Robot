@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 # Load the image
-img = cv.imread("/home/geethaka/Documents/Git/FYP-Transformer-Robot/obstacle_from_img/new.jpg")
+img = cv.imread("/home/geethaka/Documents/Git/FYP-Transformer-Robot/obstacle_from_img/2.jpg")
 img = cv.resize(img, (img.shape[:2][1] // 4, img.shape[:2][0] // 4), interpolation = cv.INTER_CUBIC)
 
 src_points = []
@@ -28,7 +28,7 @@ while True:
         break
 
 # Calculate the transformation matrix
-h, w = 320, 600
+h, w = 400, 400
 dst_points = np.float32([[0, 0], [w, 0], [w, h], [0, h]])
 M = cv.getPerspectiveTransform(np.float32(src_points), dst_points)
 
