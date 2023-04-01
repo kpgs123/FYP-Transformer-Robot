@@ -1,66 +1,81 @@
-// Define the pins for the ultrasonic sensors
-const int trigPinFront = 9;
-const int echoPinFront = 10;
-const int trigPinLeft = 11;
-const int echoPinLeft = 12;
-const int trigPinRight = 13;
-const int echoPinRight = A0;
-const int trigPinBack = A1;
-const int echoPinBack = A2;
+// Ultrasonic Sensor pins
+#define trigPin1 2
+#define echoPin1 4
+#define trigPin2 15
+#define echoPin2 13
+#define trigPin3 16
+#define echoPin3 17
+#define trigPin4 18
+#define echoPin4 19
 
-// Define variables to store the distances
-int distanceFront;
-int distanceLeft;
-int distanceRight;
-int distanceBack;
+// Threshold values
+#define threshold1 30
+#define threshold2 30
+#define threshold3 30
+#define threshold4 30
 
 void setup() {
-  // Set the trigger pins as outputs and the echo pins as inputs
-  pinMode(trigPinFront, OUTPUT);
-  pinMode(echoPinFront, INPUT);
-  pinMode(trigPinLeft, OUTPUT);
-  pinMode(echoPinLeft, INPUT);
-  pinMode(trigPinRight, OUTPUT);
-  pinMode(echoPinRight, INPUT);
-  pinMode(trigPinBack, OUTPUT);
-  pinMode(echoPinBack, INPUT);
-  
-  // Begin serial communication at 9600 baud
   Serial.begin(9600);
+  pinMode(trigPin1, OUTPUT);
+  pinMode(echoPin1, INPUT);
+  pinMode(trigPin2, OUTPUT);
+  pinMode(echoPin2, INPUT);
+  pinMode(trigPin3, OUTPUT);
+  pinMode(echoPin3, INPUT);
+  pinMode(trigPin4, OUTPUT);
+  pinMode(echoPin4, INPUT);
 }
 
 void loop() {
-  // Read the distances from each ultrasonic sensor
-  distanceFront = readDistance(trigPinFront, echoPinFront);
-  distanceLeft = readDistance(trigPinLeft, echoPinLeft);
-  distanceRight = readDistance(trigPinRight, echoPinRight);
-  distanceBack = readDistance(trigPinBack, echoPinBack);
-  
-  // Print the distances to the serial monitor
-  Serial.print("Front Distance: ");
-  Serial.print(distanceFront);
-  Serial.print("\tLeft Distance: ");
-  Serial.print(distanceLeft);
-  Serial.print("\tRight Distance: ");
-  Serial.print(distanceRight);
-  Serial.print("\tBack Distance: ");
-  Serial.println(distanceBack);
-}
-
-int readDistance(int trigPin, int echoPin) {
-  // Send a 10 microsecond pulse to the trigger pin to start the measurement
-  digitalWrite(trigPin, LOW);
+  long duration1, distance1;
+  digitalWrite(trigPin1, LOW);
   delayMicroseconds(2);
-  digitalWrite(trigPin, HIGH);
+  digitalWrite(trigPin1, HIGH);
   delayMicroseconds(10);
-  digitalWrite(trigPin, LOW);
-  
-  // Measure the time delay between sending the pulse and receiving the echo
-  int duration = pulseIn(echoPin, HIGH);
-  
-  // Calculate the distance based on the time delay and the speed of sound
-  int distance = duration * 0.034 / 2;
-  
-  // Return the distance value
-  return distance;
+  digitalWrite(trigPin1, LOW);
+  duration1 = pulseIn(echoPin1, HIGH);
+  distance1 = duration1 * 0.034 / 2;
+
+  long duration2, distance2;
+  digitalWrite(trigPin2, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin2, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin2, LOW);
+  duration2 = pulseIn(echoPin2, HIGH);
+  distance2 = duration2 * 0.034 / 2;
+
+  long duration3, distance3;
+  digitalWrite(trigPin3, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin3, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin3, LOW);
+  duration3 = pulseIn(echoPin3, HIGH);
+  distance3 = duration3 * 0.034 / 2;
+
+  long duration4, distance4;
+  digitalWrite(trigPin4, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin4, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin4, LOW);
+  duration4 = pulseIn(echoPin4, HIGH);
+  distance4 = duration4 * 0.034 / 2;
+
+  // Check for obstacles
+  if (distance1 < threshold1) {
+    Serial.println("Obstacle detected in front");
+  }
+  if (distance2 < threshold2) {
+    Serial.println("Obstacle detected on the left");
+  }
+  if (distance3 < threshold3) {
+    Serial.println("Obstacle detected on the right");
+  }
+  if (distance4 < threshold4) {
+    Serial.println("Obstacle detected behind");
+  }
+
+  delay(500);
 }
