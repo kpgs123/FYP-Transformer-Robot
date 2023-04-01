@@ -87,9 +87,11 @@ def Object_Tracking(cap):
         cap.release()
 
 
-img = cv.imread("E:\sem 8,,,,,\FFYP-PR2\environment real\picture 1.jpg")
-img = cv.resize(img, (img.shape[:2][1] // 4, img.shape[:2][0] // 4), interpolation = cv.INTER_CUBIC)
-img = cv.rotate(img,cv.ROTATE_90_COUNTERCLOCKWISE)
+img = cv.imread("E:/sem 7-------------/Final Year Design Project/Git/FYP-Transformer-Robot/NEW_Environment_3.png")
+#img = cv.resize(img, (img.shape[:2][1] // 4, img.shape[:2][0] // 4), interpolation = cv.INTER_CUBIC)
+#img = cv.rotate(img,cv.ROTATE_90_COUNTERCLOCKWISE)
+
+
 
 src_points = []
 
@@ -130,7 +132,7 @@ print(hsv[215, 100])
 
 
 # Define the range of hue, saturation, and value values to keep
-lower_threshold = (0, 20, 50)
+lower_threshold = (20, 0, 60)
 upper_threshold = (190, 235, 255)
 
 # Threshold the image to create a binary image
@@ -333,8 +335,8 @@ def get_neighbors(pos, grid):
     return neighbors
 
 # set the start and goal positions
-start = (250, 100)
-goal = (275, 250)
+start = (200, 60)
+goal = (56, 538)
 
 # find the shortest path from start to goal using the A* algorithm
 path_length, path = astar(start, goal, maze)
@@ -375,36 +377,37 @@ for ind in range(len(path) -1):
 plt.imshow(new_img)
 plt.show()
 
+orientations = []
+
+
 
 scale_factor = 12
 
 # Replace "/dev/tty.SLAB_USBtoUART" with the Bluetooth serial port of your ESP32
-ser = serial.Serial('COM9', 9600, timeout=20)
+#ser = serial.Serial('COM9', 9600, timeout=20)
 
 # Define a callback function to handle key presses
-def sendNode(oreintation):
-    t1 = time.time()
-    t2 = time.time()
-    while t2 - t1 < 2:
-        ser.write(str(oreintation).encode())
-        time.sleep(0.5)
-        t2 = time.time()
+#def sendNode(oreintation):
+    #t1 = time.time()
+    #t2 = time.time()
+    #while t2 - t1 < 2:
+        #ser.write(str(oreintation).encode())
+        #time.sleep(0.5)
+        #t2 = time.time()
 
-'''for i in orientations:
-   sendNode(i)'''
-
-orientations = []
+#'''for i in orientations:
+   #sendNode(i)'''
 
 # Keep the program running to allow key presses to be detected
-i = 0
-while i < len(orientations) - 1:
-    sendNode(orientations[i])
-    data = ser.readline()
-    s = data.decode()
-    s = s[:-2]
-    if len(s):
-        print(s)
-    i += 1
+#i = 0
+#while i < len(orientations) - 1:
+    #sendNode(orientations[i])
+    #data = ser.readline()
+    #s = data.decode()
+    #s = s[:-2]
+    #if len(s):
+        #print(s)
+    #i += 1
 
 
 
