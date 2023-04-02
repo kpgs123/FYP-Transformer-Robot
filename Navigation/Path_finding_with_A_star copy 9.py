@@ -342,16 +342,15 @@ print(orientations)
 scale_factor = 12
 
 # Replace "/dev/tty.SLAB_USBtoUART" with the Bluetooth serial port of your ESP32
-ser = serial.Serial('COM4', 9600, timeout=2)
+ser = serial.Serial('COM12', 9600, timeout=2)
 
 # Define a callback function to handle key presses
 def sendNode(oreintation):
-    t1 = time.time()
-    t2 = time.time()
-    while t2 - t1 < 2:
-        ser.write(str(oreintation).encode())
-        time.sleep(0.2)
-        t2 = time.time()
+    #t1 = time.time()
+    #t2 = time.time()
+    ser.write(str(oreintation).encode())
+    time.sleep(0.5)
+    #t2 = time.time()
 
 '''for i in orientations:
    sendNode(i)'''
