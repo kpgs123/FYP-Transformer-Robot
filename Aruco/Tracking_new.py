@@ -5,11 +5,11 @@ import numpy as np
 
 dict_aruco = aruco.Dictionary_get(aruco.DICT_4X4_50)
 parameters = aruco.DetectorParameters_create()
-url = 0
+url = "http://192.168.194.175:8080/video"
 path = np.empty((0, 2), float)
 
-cap = cv2.VideoCapture('G:/sem 7/FYP/Git/FYP-Transformer-Robot/FYP Videos/1_res.mp4')
-#cap = cv2.VideoCapture(url)
+#cap = cv2.VideoCapture('G:/sem 7/FYP/Git/FYP-Transformer-Robot/FYP Videos/1_res.mp4')
+cap = cv2.VideoCapture(url)
 no_marker_count = 0
 Threshold_no_marker = 55
 
@@ -27,9 +27,12 @@ try:
         if len(corners) > 0:
             no_marker_count = 0
             centroid = np.mean(corners[0][0], axis=0)
+            
             path = np.append(path , np.array([centroid]), axis=0)
 
             frame_markers = aruco.drawDetectedMarkers(frame.copy(), corners, ids)
+            cv2.putText(frame_markers, f"Coordinates: {centroid}" , (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
+          
             cv2.imshow('frame', frame_markers)
         else:
             no_marker_count += 1

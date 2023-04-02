@@ -41,7 +41,7 @@ try:
             
             R, _ = cv2.Rodrigues(rvec)
             print("rotaional",z_rot_deg)
-            print("transverse",tvec[0][0])
+            #print("transverse",tvec[0][0])
             
 
            
