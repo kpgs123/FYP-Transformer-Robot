@@ -161,7 +161,7 @@ def virtualBarrier(t):
             maze_with_barries[i-t, j+t] = 1
   return maze_with_barries
 
-maze = virtualBarrier(10)
+maze = virtualBarrier(20)
 maze = np.array(maze)
 maze = maze.astype(np.int32)
 plt.imshow(maze)
