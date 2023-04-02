@@ -254,6 +254,8 @@ def get_neighbors(pos, grid):
         neighbors.append((x, y))
     return neighbors
 
+
+
 # set the start and goal positions
 start = (200, 60)
 goal = (56, 538)

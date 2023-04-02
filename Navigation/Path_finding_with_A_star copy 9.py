@@ -6,12 +6,25 @@ import heapq
 import keyboard
 import serial
 import time
+import urllib.request
 
 
 # Load the image
-img = cv.imread("D:/Git/FYP-Transformer-Robot/Navigation/2.jpg")
+# URL of the IP cam photo stream
+url = 'http://192.168.90.1:8080/shot.jpg'
 
-img = cv.resize(img, (img.shape[:2][1] // 5, img.shape[:2][0] // 5), interpolation = cv.INTER_CUBIC)
+# Read the photo stream from the URL
+img_resp = urllib.request.urlopen(url)
+
+# Convert the response to a NumPy array
+img_arr = np.array(bytearray(img_resp.read()), dtype=np.uint8)
+
+# Decode the NumPy array to an OpenCV image
+img = cv.imdecode(img_arr, -1)
+
+#img = cv.imread("D:/Git/FYP-Transformer-Robot/Navigation/2.jpg")
+
+#img = cv.resize(img, (img.shape[:2][1] // 2, img.shape[:2][0] // 2), interpolation = cv.INTER_CUBIC)
 
 src_points = []
 
@@ -53,7 +66,7 @@ print(hsv[260, 130])
 
 # Define the range of hue, saturation, and value values to keep
 lower_threshold = (0, 0, 0)
-upper_threshold = (90, 255, 255)
+upper_threshold = (120, 255, 255)
 
 # Threshold the image to create a binary image
 binary_image = cv.inRange(hsv, lower_threshold, upper_threshold)
@@ -176,7 +189,7 @@ def astar(start, goal, grid):
     
 
     while len(pq) > 0:
-        t = 2
+        t = 8
         # pop the position with the lowest f-score (i.e., g-score + h-score) from the priority queue
         f, pos, path = heapq.heappop(pq)
 
@@ -242,7 +255,7 @@ def get_neighbors(pos, grid):
     :param grid: a NumPy array representing the 2D grid
     :return: a list of positions that are adjacent to the given position and are not barriers in the grid
     """
-    t = 2
+    t = 8
 
 
     neighbors = []
@@ -255,8 +268,8 @@ def get_neighbors(pos, grid):
     return neighbors
 
 # set the start and goal positions
-start = (120, 20)
-goal = (100, 100)
+start = (32, 288)
+goal = (272, 72)
 
 # find the shortest path from start to goal using the A* algorithm
 print(maze.shape)
@@ -329,7 +342,7 @@ print(orientations)
 scale_factor = 12
 
 # Replace "/dev/tty.SLAB_USBtoUART" with the Bluetooth serial port of your ESP32
-ser = serial.Serial('COM9', 9600, timeout=20)
+ser = serial.Serial('COM4', 9600, timeout=2)
 
 # Define a callback function to handle key presses
 def sendNode(oreintation):
@@ -337,7 +350,7 @@ def sendNode(oreintation):
     t2 = time.time()
     while t2 - t1 < 2:
         ser.write(str(oreintation).encode())
-        time.sleep(0.5)
+        time.sleep(0.2)
         t2 = time.time()
 
 '''for i in orientations:
