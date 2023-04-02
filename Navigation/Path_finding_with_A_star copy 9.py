@@ -11,7 +11,7 @@ import urllib.request
 
 # Load the image
 # URL of the IP cam photo stream
-url = 'http://192.168.242.175:8080/shot.jpg'
+url = 'http://192.168.194.175:8080/shot.jpg'
 
 # Read the photo stream from the URL
 img_resp = urllib.request.urlopen(url)
