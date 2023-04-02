@@ -24,7 +24,7 @@ img = cv.imdecode(img_arr, -1)
 
 #img = cv.imread("D:/Git/FYP-Transformer-Robot/Navigation/2.jpg")
 
-img = cv.resize(img, (img.shape[:2][1] // 3, img.shape[:2][0] // 3), interpolation = cv.INTER_CUBIC)
+img = cv.resize(img, (img.shape[:2][1] // 2, img.shape[:2][0] // 2), interpolation = cv.INTER_CUBIC)
 
 src_points = []
 
@@ -161,7 +161,7 @@ def virtualBarrier(t):
             maze_with_barries[i-t, j+t] = 1
   return maze_with_barries
 
-maze = virtualBarrier(20)
+maze = virtualBarrier(10)
 maze = np.array(maze)
 maze = maze.astype(np.int32)
 plt.imshow(maze)
@@ -269,7 +269,7 @@ def get_neighbors(pos, grid):
 
 # set the start and goal positions
 start = (30, 280)
-goal = (270, 50)
+goal = (270, 0)
 
 # find the shortest path from start to goal using the A* algorithm
 print(maze.shape)
@@ -342,7 +342,7 @@ print(orientations)
 scale_factor = 12
 
 # Replace "/dev/tty.SLAB_USBtoUART" with the Bluetooth serial port of your ESP32
-ser = serial.Serial('COM13', 9600, timeout=2)
+ser = serial.Serial('COM12', 9600, timeout=2)
 
 # Define a callback function to handle key presses
 def sendNode(oreintation):
@@ -365,8 +365,6 @@ while i < len(orientations) - 1:
     if len(s):
         print(s)
     i += 1
-
-
 
 ser.write('i'.encode())
 time.sleep(0.4)
