@@ -11,7 +11,7 @@ import urllib.request
 
 # Load the image
 # URL of the IP cam photo stream
-url = 'http://192.168.90.1:8080/shot.jpg'
+url = 'http://192.168.242.175:8080/shot.jpg'
 
 # Read the photo stream from the URL
 img_resp = urllib.request.urlopen(url)
@@ -24,7 +24,7 @@ img = cv.imdecode(img_arr, -1)
 
 #img = cv.imread("D:/Git/FYP-Transformer-Robot/Navigation/2.jpg")
 
-#img = cv.resize(img, (img.shape[:2][1] // 2, img.shape[:2][0] // 2), interpolation = cv.INTER_CUBIC)
+img = cv.resize(img, (img.shape[:2][1] // 3, img.shape[:2][0] // 3), interpolation = cv.INTER_CUBIC)
 
 src_points = []
 
@@ -161,7 +161,7 @@ def virtualBarrier(t):
             maze_with_barries[i-t, j+t] = 1
   return maze_with_barries
 
-maze = virtualBarrier(2)
+maze = virtualBarrier(10)
 maze = np.array(maze)
 maze = maze.astype(np.int32)
 plt.imshow(maze)
@@ -189,7 +189,7 @@ def astar(start, goal, grid):
     
 
     while len(pq) > 0:
-        t = 8
+        t = 10
         # pop the position with the lowest f-score (i.e., g-score + h-score) from the priority queue
         f, pos, path = heapq.heappop(pq)
 
@@ -255,7 +255,7 @@ def get_neighbors(pos, grid):
     :param grid: a NumPy array representing the 2D grid
     :return: a list of positions that are adjacent to the given position and are not barriers in the grid
     """
-    t = 8
+    t = 10
 
 
     neighbors = []
@@ -268,8 +268,8 @@ def get_neighbors(pos, grid):
     return neighbors
 
 # set the start and goal positions
-start = (32, 288)
-goal = (272, 72)
+start = (30, 280)
+goal = (270, 50)
 
 # find the shortest path from start to goal using the A* algorithm
 print(maze.shape)
@@ -323,17 +323,17 @@ for node_index in range(len(path)-1):
        direction = '6'
    elif y2 - y1 == 0:
     if x2 - x1 > 0:
-       direction = '2'
-    else:
        direction = '8'
+    else:
+       direction = '2'
    elif x2 - x1 > 0 and y2 - y1 > 0:
-      direction = '9'
-   elif x2 - x1 < 0 and y2 - y1 > 0:
       direction = '7'
-   elif x2 - x1 < 0 and y2 - y1 < 0:
+   elif x2 - x1 < 0 and y2 - y1 > 0:
       direction = '1'
-   elif x2 - x1 > 0 and y2 - y1 < 0:
+   elif x2 - x1 < 0 and y2 - y1 < 0:
       direction = '3'
+   elif x2 - x1 > 0 and y2 - y1 < 0:
+      direction = '9'
     
    orientations.append(direction)
 
@@ -349,7 +349,7 @@ def sendNode(oreintation):
     #t1 = time.time()
     #t2 = time.time()
     ser.write(str(oreintation).encode())
-    time.sleep(0.5)
+    time.sleep(0.4)
     #t2 = time.time()
 
 '''for i in orientations:
@@ -365,3 +365,16 @@ while i < len(orientations) - 1:
     if len(s):
         print(s)
     i += 1
+
+
+
+ser.write('i'.encode())
+time.sleep(0.4)
+
+t1 = time.time()
+t2 = time.time()
+while t2 - t1 < 6:
+    sm_shape = '2'
+    ser.write(sm_shape.encode())
+    time.sleep(0.4)
+    t2 = time.time()
