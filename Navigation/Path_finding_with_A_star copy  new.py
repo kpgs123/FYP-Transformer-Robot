@@ -6,9 +6,11 @@ import heapq
 import keyboard
 import serial
 import time
+import urllib.request
 
 
 # Load the image
+# URL of the IP cam photo stream
 img = cv.imread("D:/Git/FYP-Transformer-Robot/Navigation/1.jpg")
 
 img = cv.resize(img, (img.shape[:2][1] // 5, img.shape[:2][0] // 5), interpolation = cv.INTER_CUBIC)
@@ -34,7 +36,7 @@ while True:
         break
 
 # Calculate the transformation matrix
-h, w = 400, 600
+h, w = 400, 400
 dst_points = np.float32([[0, 0], [w, 0], [w, h], [0, h]])
 M = cv.getPerspectiveTransform(np.float32(src_points), dst_points)
 
@@ -48,12 +50,12 @@ cv.waitKey(0)
 # Convert the image to the HSV color space
 hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
 cv.imshow("hsv", hsv)
-print(hsv[215, 100])
+print(hsv[260, 130])
 
 
 # Define the range of hue, saturation, and value values to keep
-lower_threshold = (20, 0, 60)
-upper_threshold = (190, 235, 255)
+lower_threshold = (0, 0, 0)
+upper_threshold = (120, 255, 255)
 
 # Threshold the image to create a binary image
 binary_image = cv.inRange(hsv, lower_threshold, upper_threshold)
@@ -71,8 +73,8 @@ masked_image = cv.bitwise_and(img, img, mask=binary_image)
 '''for identify the main path'''
 
 # Define lower and upper thresholds for brown
-lower_brown = (130, 0, 60)
-upper_brown = (255, 255, 95)
+lower_brown = (90, 0, 0)
+upper_brown = (120, 90, 180)
 
 # Create binary mask using inRange function
 brown_mask = cv.inRange(hsv, lower_brown, upper_brown)
@@ -81,7 +83,7 @@ brown_mask = cv.inRange(hsv, lower_brown, upper_brown)
 brown_img = cv.bitwise_and(img, img, mask=brown_mask)
 brown_mask_bool = brown_mask.astype(np.int32)
 
-# Display the extracted brown pixels
+# Display the extracted brown pixelsq
 cv.imshow("Brown Part of Image", brown_img)
 cv.waitKey(0)
 
@@ -110,7 +112,7 @@ blured_img = cv.GaussianBlur(gray_img, (5, 5), cv.BORDER_DEFAULT)
 cv.imshow("Blured Image", blured_img)
 cv.waitKey(0)
 cv.destroyAllWindows()
-ret, thresh = cv.threshold(blured_img, 190, 255, cv.THRESH_BINARY)
+ret, thresh = cv.threshold(blured_img, 210, 255, cv.THRESH_BINARY)
 plt.imshow(thresh)
 plt.show()
 
@@ -148,7 +150,7 @@ def virtualBarrier(t):
             maze_with_barries[i-t, j+t] = 1
   return maze_with_barries
 
-maze = virtualBarrier(3)
+maze = virtualBarrier(10)
 maze = np.array(maze)
 maze = maze.astype(np.int32)
 plt.imshow(maze)
@@ -176,7 +178,7 @@ def astar(start, goal, grid):
     
 
     while len(pq) > 0:
-        t = 2
+        t = 10
         # pop the position with the lowest f-score (i.e., g-score + h-score) from the priority queue
         f, pos, path = heapq.heappop(pq)
 
@@ -242,7 +244,7 @@ def get_neighbors(pos, grid):
     :param grid: a NumPy array representing the 2D grid
     :return: a list of positions that are adjacent to the given position and are not barriers in the grid
     """
-    t = 2
+    t = 10
 
 
     neighbors = []
@@ -254,13 +256,12 @@ def get_neighbors(pos, grid):
         neighbors.append((x, y))
     return neighbors
 
-
-
 # set the start and goal positions
-start = (200, 60)
-goal = (56, 538)
+start = (30, 280)
+goal = (270, 50)
 
 # find the shortest path from start to goal using the A* algorithm
+print(maze.shape)
 path_length, path = astar(start, goal, maze)
 
 # print the results
@@ -311,17 +312,17 @@ for node_index in range(len(path)-1):
        direction = '6'
    elif y2 - y1 == 0:
     if x2 - x1 > 0:
-       direction = '2'
-    else:
        direction = '8'
+    else:
+       direction = '2'
    elif x2 - x1 > 0 and y2 - y1 > 0:
-      direction = '9'
-   elif x2 - x1 < 0 and y2 - y1 > 0:
       direction = '7'
-   elif x2 - x1 < 0 and y2 - y1 < 0:
+   elif x2 - x1 < 0 and y2 - y1 > 0:
       direction = '1'
-   elif x2 - x1 > 0 and y2 - y1 < 0:
+   elif x2 - x1 < 0 and y2 - y1 < 0:
       direction = '3'
+   elif x2 - x1 > 0 and y2 - y1 < 0:
+      direction = '9'
     
    orientations.append(direction)
 
@@ -330,16 +331,15 @@ print(orientations)
 scale_factor = 12
 
 # Replace "/dev/tty.SLAB_USBtoUART" with the Bluetooth serial port of your ESP32
-ser = serial.Serial('COM9', 9600, timeout=20)
+ser = serial.Serial('COM13', 9600, timeout=2)
 
 # Define a callback function to handle key presses
 def sendNode(oreintation):
-    t1 = time.time()
-    t2 = time.time()
-    while t2 - t1 < 2:
-        ser.write(str(oreintation).encode())
-        time.sleep(0.5)
-        t2 = time.time()
+    #t1 = time.time()
+    #t2 = time.time()
+    ser.write(str(oreintation).encode())
+    time.sleep(0.4)
+    #t2 = time.time()
 
 '''for i in orientations:
    sendNode(i)'''
@@ -354,3 +354,16 @@ while i < len(orientations) - 1:
     if len(s):
         print(s)
     i += 1
+
+
+
+ser.write('i'.encode())
+time.sleep(0.4)
+
+t1 = time.time()
+t2 = time.time()
+while t2 - t1 < 6:
+    sm_shape = '2'
+    ser.write(sm_shape.encode())
+    time.sleep(0.4)
+    t2 = time.time()
