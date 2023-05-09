@@ -11,7 +11,7 @@ import time
 # Load the image
 img = cv.imread("D:/Git/FYP-Transformer-Robot/Navigation/1.jpg")
 
-img = cv.resize(img, (img.shape[:2][1] // 5, img.shape[:2][0] // 5), interpolation = cv.INTER_CUBIC)
+img = cv.resize(img, (img.shape[:2][1] // 2, img.shape[:2][0] // 2), interpolation = cv.INTER_CUBIC)
 
 src_points = []
 
@@ -256,7 +256,7 @@ def get_neighbors(pos, grid):
 
 # set the start and goal positions
 start = (30, 280)
-goal = (50, 150)
+goal = (270, 0)
 
 # find the shortest path from start to goal using the A* algorithm
 print(maze.shape)
