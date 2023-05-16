@@ -1,13 +1,8 @@
-import time
 import numpy as np
 import cv2
 
-# Define the number of corners in the checkerboard
-num_corners_x = 5
-num_corners_y = 3
-
-# Define the size of each square on the checkerboard in millimeters
-square_size = 45.0
+# Define the size of each tile in millimeters
+tile_size = 304.8
 
 # Create arrays to store object points and image points from all the images
 object_points = [] # 3D points in real world space
@@ -15,32 +10,31 @@ image_points = [] # 2D points in image plane
 
 # Set up the camera capture object
 url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
-cap = cv2.VideoCapture(url)
+cap = cv2.VideoCapture(0) # Replace with your camera source
 
 # Loop until enough good images have been captured
 num_good_images = 0
 while num_good_images < 50:
     # Wait for 2 seconds
-    time.sleep(1)
+    cv2.waitKey(2000)
 
     # Capture a frame from the camera
     ret, img = cap.read()
-    timestamp = cap.get(cv2.CAP_PROP_POS_MSEC)
 
     # Convert the frame to grayscale
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    # Find the chessboard corners in the grayscale image
-    ret, corners = cv2.findChessboardCorners(gray, (num_corners_x, num_corners_y), None)
+    # Find the corners of the tiles in the grayscale image
+    ret, corners = cv2.findChessboardCorners(gray, (8, 6), None)
 
     # If the corners are found, add object points and image points to the lists
     if ret == True:
-        object_points.append(np.zeros((num_corners_x * num_corners_y, 3), np.float32))
-        object_points[-1][:, :2] = np.mgrid[0:num_corners_x, 0:num_corners_y].T.reshape(-1, 2) * square_size
+        object_points.append(np.zeros((8*6, 3), np.float32))
+        object_points[-1][:, :2] = np.mgrid[0:8, 0:6].T.reshape(-1, 2) * tile_size
         image_points.append(corners)
 
         # Draw and display the corners
-        cv2.drawChessboardCorners(img, (num_corners_x, num_corners_y), corners, ret)
+        cv2.drawChessboardCorners(img, (8, 6), corners, ret)
         cv2.imshow('img', img)
         cv2.waitKey(500)
 
