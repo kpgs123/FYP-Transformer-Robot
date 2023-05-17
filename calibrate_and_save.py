@@ -10,18 +10,23 @@ num_corners_y = 3
 square_size = 45.0
 
 # Create arrays to store object points and image points from all the images
-object_points = [] # 3D points in real world space
-image_points = [] # 2D points in image plane
+object_points = []  # 3D points in real-world space
+image_points = []  # 2D points in image plane
 
 # Set up the camera capture object
 url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
-cap = cv2.VideoCapture(url)
+
+
+# Create a counter for image filenames
+image_counter = 1
 
 # Loop until enough good images have been captured
 num_good_images = 0
-while num_good_images < 75:
+while num_good_images < 100:
     # Wait for 2 seconds
-    time.sleep(50)
+    cap = cv2.VideoCapture(url)
+    time.sleep(.5)
+
 
     # Capture a frame from the camera
     ret, img = cap.read()
@@ -44,14 +49,22 @@ while num_good_images < 75:
         cv2.imshow('img', img)
         cv2.waitKey(500)
 
+        # Save the image with a filename in the format "cali_<image_counter>.jpg"
+        filename = f'cali_{image_counter}.jpg'
+        cv2.imwrite(filename, img)
+        image_counter += 1
+
         num_good_images += 1
+        print(num_good_images)
 
 # Release the camera and close the window
 cap.release()
 cv2.destroyAllWindows()
 
 # Calibrate the camera using the object points and image points
-ret, camera_matrix, distortion_coeffs, rvecs, tvecs = cv2.calibrateCamera(object_points, image_points, gray.shape[::-1], None, None)
+ret, camera_matrix, distortion_coeffs, rvecs, tvecs = cv2.calibrateCamera(
+    object_points, image_points, gray.shape[::-1], None, None
+)
 
 # Print the camera matrix and distortion coefficients
 print("Camera Matrix:\n", camera_matrix)
