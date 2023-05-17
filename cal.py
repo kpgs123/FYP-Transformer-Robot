@@ -19,7 +19,7 @@ cap = cv2.VideoCapture(url)
 
 # Loop until enough good images have been captured
 num_good_images = 0
-while num_good_images < 50:
+while num_good_images < 75:
     # Wait for 2 seconds
     time.sleep(1)
 
