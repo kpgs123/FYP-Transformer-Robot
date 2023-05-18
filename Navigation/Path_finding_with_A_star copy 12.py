@@ -292,28 +292,36 @@ path_arr = np.zeros([r, c])
 for ind in range(len(path) -1):
     y1, x1 = path[ind]
     y2, x2 = path[ind+1]
-    cv.line(new_img, (x1, y1), (x2, y2), (255, 0, 0), 1)
+    cv.line(new_img, (x1, y1), (x2, y2), (0, 255, 0), 1)
 
-    x = [8.5, 8.5, -25.5, -25.5, 8.5]
-    y = [8.5, -25.5, -25.5, 8.5, 8.5]
+    # Given coordinates in cm
+    x_cm = [8.5, 8.5, -25.5, -25.5, 8.5]
+    y_cm = [8.5, -25.5, -25.5, 8.5, 8.5]
 
-    origin_x = x2  # X-coordinate of the desired origin
-    origin_y = y2  # Y-coordinate of the desired origin
+    # Image and area dimensions
+    image_size = 400
+    area_width_cm = 240
+    area_height_cm = 240
 
-    # Calculate the coordinates for the square
-    left = int(min(x)) + origin_x
-    top = int(min(y)) + origin_y
-    width = int(max(x) - min(x))
-    height = int(max(y) - min(y))
-    right = left + width
-    bottom = top + height
+    # Calculate the scaling factor
+    scale_x = image_size / area_width_cm
+    scale_y = image_size / area_height_cm
+
+    # Pixel offset from the origin
+    offset_x = x2
+    offset_y = y2
+
+    # Scale the coordinates from cm to pixels
+    x_px = [(int(x * scale_x) + offset_x) for x in x_cm]
+    y_px = [(int(y * scale_y) + offset_y) for y in y_cm]
 
     # Draw the square on the image
-    start_point = (left, top)
-    end_point = (right, bottom)
+    points = np.array([(x, y) for x, y in zip(x_px, y_px)], np.int32)
+    points = points.reshape((-1, 1, 2))
     color = (255, 0, 0)  # Blue color in BGR format
     thickness = 1
-    cv.rectangle(new_img, start_point, end_point, color, thickness)
+    cv.polylines(new_img, [points], isClosed=True, color=color, thickness=thickness)
+
     
 
 plt.imshow(new_img)
