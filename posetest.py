@@ -8,8 +8,8 @@ dict_aruco = aruco.Dictionary_get(aruco.DICT_4X4_50)
 parameters = aruco.DetectorParameters_create()
 url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
 path = np.empty((0, 2), float)
-camera_matrix = np.load("calibration_matrix.npy")
-dist_coeffs = np.load("distortion_coefficients.npy")
+camera_matrix = np.load("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/CaliFinal/camera_matrix.npy")
+dist_coeffs = np.load("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/CaliFinal/distortion_coeffs.npy")
 
 #cap = cv2.VideoCapture('G:/sem 7/FYP/Git/FYP-Transformer-Robot/FYP Videos/1_res.mp4')
 cap = cv2.VideoCapture(url)
