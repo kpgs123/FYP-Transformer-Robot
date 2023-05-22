@@ -315,7 +315,7 @@ def obstcle_inside_the_shape_o(x1, x2, y1, y2, prox_grid):
 
 # set the start and goal positions
 start = (50, 300)
-goal = (350, 110)
+goal = (250, 50)
 
 # find the shortest path from start to goal using the A* algorithm
 print(maze.shape)
@@ -440,14 +440,3 @@ while i < len(orientations) - 1:
     if len(s):
         print(s)
     i += 1
-
-ser.write('i'.encode())
-time.sleep(0.4)
-
-t1 = time.time()
-t2 = time.time()
-while t2 - t1 < 6:
-    sm_shape = '2'
-    ser.write(sm_shape.encode())
-    time.sleep(0.4)
-    t2 = time.time()
