@@ -35,11 +35,12 @@ try:
             no_marker_count = 0
             rvec, tvec, _ = aruco.estimatePoseSingleMarkers(corners, 0.015, camera_matrix, dist_coeffs)
             # Get rotation matrix from rotation vector
-            
-            #rvec = np.array(rvec).reshape((3,))
+            if rvec.size !=3:
+                continue
+                
             print(rvec)
-
-            z_rot = rvec[0][0][2]
+            rvec = np.array(rvec).reshape((3,))
+            z_rot = rvec[2]
 
             z_rot_deg = round(math.degrees(z_rot),2)
             
@@ -56,12 +57,18 @@ try:
             centroid = np.mean(corners[0][0], axis=0)
             path = np.append(path , np.array([centroid]), axis=0)
 
-            frame_markers = aruco.drawDetectedMarkers(frame.copy(), corners, ids)
-            
-            
-            cv2.putText(frame_markers, f"Angle: {z_rot_deg}" , (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 250), 2)
-            cv2.putText(frame_markers, f"Angle: {centroid}" , (300, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 250), 2)
+            ###################################
+            # Get x, y, and z rotation angles from the rotation matrix
+            x_rot = round(math.degrees(math.atan2(R[2, 1], R[2, 2])), 2)
+            y_rot = round(math.degrees(math.atan2(-R[2, 0], math.sqrt(R[2, 1]**2 + R[2, 2]**2))), 2)
+            z_rot = round(math.degrees(math.atan2(R[1, 0], R[0, 0])), 2)
 
+                # Print rotation angles on the frame
+            cv2.putText(frame, f"X Rotation: {x_rot}", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 250), 2)
+            cv2.putText(frame, f"Y Rotation: {y_rot}", (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 250), 2)
+            cv2.putText(frame, f"Z Rotation: {z_rot}", (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 250), 2)
+    
+            frame_markers = aruco.drawDetectedMarkers(frame.copy(), corners, ids)
             cv2.imshow('frame', frame_markers)
             
         else:
