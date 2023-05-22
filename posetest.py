@@ -19,9 +19,6 @@ Threshold_no_marker = 55
 try:
     i=0
     while True:
-        
-        
-
         ret, frame = cap.read()
 
         # No more frames in video, break out of loop
@@ -53,7 +50,10 @@ try:
             path = np.append(path , np.array([centroid]), axis=0)
 
             frame_markers = aruco.drawDetectedMarkers(frame.copy(), corners, ids)
+            
             cv2.putText(frame_markers, f"Angle: {z_rot_deg}" , (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 250), 2)
+            cv2.putText(frame_markers, f"Angle: {centroid}" , (300, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 250), 2)
+
             cv2.imshow('frame', frame_markers)
         else:
             no_marker_count += 1
