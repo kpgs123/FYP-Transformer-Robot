@@ -9,7 +9,7 @@ import time
 
 
 # Load the image
-img = cv.imread("/home/geethaka/Documents/Git/FYP-Transformer-Robot/Navigation/1.jpg")
+img = cv.imread("D:/Git/FYP-Transformer-Robot/Navigation/1.jpg")
 
 img = cv.resize(img, (img.shape[:2][1] // 5, img.shape[:2][0] // 5), interpolation = cv.INTER_CUBIC)
 
@@ -163,8 +163,8 @@ image = np.float32(maze) * 255
 print(image.shape)
 
 # Create Gaussian kernel
-kernel_size = (40, 40)  # Adjust the kernel size for desired thickness
-sigma = 1000  # Adjust the sigma value for the spread of the Gaussian
+kernel_size = (50, 50)  # Adjust the kernel size for desired thickness
+sigma = 1250  # Adjust the sigma value for the spread of the Gaussian
 gaussian_kernel = cv.getGaussianKernel(kernel_size[0], sigma) @ cv.getGaussianKernel(kernel_size[1], sigma).T
 
 # Perform 2D convolution with Gaussian kernel
@@ -232,8 +232,8 @@ def astar(start, goal, grid, prox_grid):
             offset_y = neighbor[1]
 
             # Scale the coordinates from cm to pixels
-            x_px = [(int(x * scale_x) + offset_x) for x in x_cm]
-            y_px = [(int(y * scale_y) + offset_y) for y in y_cm]
+            x_px = [(int(-x * scale_x) + offset_x) for x in x_cm]
+            y_px = [(int(-y * scale_y) + offset_y) for y in y_cm]
 
             x_set = sorted(set(x_px))
             y_set = sorted(set(y_px))
@@ -248,7 +248,7 @@ def astar(start, goal, grid, prox_grid):
             if not cond:
                 g += f + 1*t
             else:
-                g += f + math.sqrt(2)*t*10
+                g += f + math.sqrt(2)*t
                 #g = f + 2*t**2
 
             h = heuristic(neighbor, goal)
@@ -315,7 +315,7 @@ def obstcle_inside_the_shape_o(x1, x2, y1, y2, prox_grid):
 
 # set the start and goal positions
 start = (50, 300)
-goal = (250, 50)
+goal = (300, 60)
 
 # find the shortest path from start to goal using the A* algorithm
 print(maze.shape)
@@ -372,8 +372,8 @@ for ind in range(len(path) -1):
     offset_y = y2
 
     # Scale the coordinates from cm to pixels
-    x_px = [(int(x * scale_x) + offset_x) for x in x_cm]
-    y_px = [(int(y * scale_y) + offset_y) for y in y_cm]
+    x_px = [(int(-x * scale_x) + offset_x) for x in x_cm]
+    y_px = [(int(-y * scale_y) + offset_y) for y in y_cm]
 
     # Draw the square on the image
     points = np.array([(x, y) for x, y in zip(x_px, y_px)], np.int32)
