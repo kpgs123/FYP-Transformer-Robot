@@ -6,7 +6,6 @@ import heapq
 import keyboard
 import serial
 import time
-from scipy.ndimage.measurements import center_of_mass
 
 
 # Load the image
@@ -110,7 +109,7 @@ cv.imshow("gray_img", gray_img)
 cv.waitKey(0)
 cv.destroyAllWindows()
 
-gray_img = cv.resize(gray_img, (gray_img.shape[:2][1], gray_img.shape[:2][0]), interpolation = cv.INTER_CUBIC)
+#gray_img = cv.resize(gray_img, (gray_img.shape[:2][1], gray_img.shape[:2][0]), interpolation = cv.INTER_CUBIC)
 blured_img = cv.GaussianBlur(gray_img, (5, 5), cv.BORDER_DEFAULT)
 cv.imshow("Blured Image", blured_img)
 cv.waitKey(0)
@@ -153,16 +152,35 @@ def virtualBarrier(t):
             maze_with_barries[i-t, j+t] = 1
   return maze_with_barries
 
-maze = virtualBarrier(10)
+maze = virtualBarrier(5)
 maze = np.array(maze)
 maze = maze.astype(np.int32)
 plt.imshow(maze)
 plt.show()
 
+# Load the image (1 represents movable area, 0 represents obstacle area)
+image = np.float32(maze) * 255
+print(image.shape)
+
+# Create Gaussian kernel
+kernel_size = (40, 40)  # Adjust the kernel size for desired thickness
+sigma = 1000  # Adjust the sigma value for the spread of the Gaussian
+gaussian_kernel = cv.getGaussianKernel(kernel_size[0], sigma) @ cv.getGaussianKernel(kernel_size[1], sigma).T
+
+# Perform 2D convolution with Gaussian kernel
+thicker_image = cv.filter2D(image, -1, gaussian_kernel)
+
+# Normalize thicker image to range 0-1
+prox_maze = thicker_image
+
+
+plt.imshow(prox_maze)
+plt.show()
+
 with open("maze.txt", 'w') as file:
    file.writelines(str(list(maze)))
 
-def astar(start, goal, grid):
+def astar(start, goal, grid, prox_grid):
     """
     Implements the A* algorithm to find the shortest path from start to goal in a 2D grid.
     :param start: a tuple representing the starting position in the grid
@@ -177,11 +195,9 @@ def astar(start, goal, grid):
     heapq.heappush(pq, (0, start, [start]))
     # initialize the visited set
     visited = set()
-
     
-
     while len(pq) > 0:
-        t = 10
+        t = 5
         # pop the position with the lowest f-score (i.e., g-score + h-score) from the priority queue
         f, pos, path = heapq.heappop(pq)
 
@@ -197,16 +213,49 @@ def astar(start, goal, grid):
             if neighbor in visited:
                 continue
             # calculate the g-score and h-score of the neighbor
+
+            # Given coordinates in cm
+            x_cm = [8.5, 8.5, -25.5, -25.5, 8.5]
+            y_cm = [8.5, -25.5, -25.5, 8.5, 8.5]
+
+            # Image and area dimensions
+            image_size = 400
+            area_width_cm = 240
+            area_height_cm = 240
+
+            # Calculate the scaling factor
+            scale_x = image_size / area_width_cm
+            scale_y = image_size / area_height_cm
+
+            # Pixel offset from the origin
+            offset_x = neighbor[0]
+            offset_y = neighbor[1]
+
+            # Scale the coordinates from cm to pixels
+            x_px = [(int(x * scale_x) + offset_x) for x in x_cm]
+            y_px = [(int(y * scale_y) + offset_y) for y in y_cm]
+
+            x_set = sorted(set(x_px))
+            y_set = sorted(set(y_px))
+
+            obstacle_found = obstcle_inside_the_shape_o(x_set[0], x_set[1], y_set[0], y_set[1], prox_grid)
+
             cond = (abs(pos[0] - neighbor[0])) and abs(pos[1] - neighbor[1])
             if brown_mask_bool[pos[0], pos[1]] == 0:
-                g = t*100000
+                if obstacle_found:
+                    g = 10000
+                else:
+                    g = prox_grid[neighbor[0], neighbor[1]] + 255
             else:
-               g = 0
+                if obstacle_found:
+                    g = 750
+                else:
+                    g = prox_grid[neighbor[0], neighbor[1]]
             if not cond:
-                g += f + 1*t
+               g += f + 1*t
             else:
-                g += f + math.sqrt(2)*t
-                #g = f + 2*t**2
+               g += f + math.sqrt(2)*t*10
+               #g = f + 2*t**2
 
             h = heuristic(neighbor, goal)
             heapq.heappush(pq, (g + h, neighbor, path + [neighbor]))
@@ -247,7 +296,7 @@ def get_neighbors(pos, grid):
     :param grid: a NumPy array representing the 2D grid
     :return: a list of positions that are adjacent to the given position and are not barriers in the grid
     """
-    t = 10
+    t = 5
 
 
     neighbors = []
@@ -259,13 +308,29 @@ def get_neighbors(pos, grid):
         neighbors.append((x, y))
     return neighbors
 
+def obstcle_inside_the_shape_o(x1, x2, y1, y2, prox_grid):
+    if x2 >= 400:
+       x2 = 399
+    if y2 >= 400:
+       y2 = 399
+    count = 0
+    for y in range(y1, y2 + 1):
+        for x in range(x1, x2 + 1):
+            if prox_grid[x, y] > 0:
+                count += 1
+                if count > 5:
+                    return 1
+    else:
+        return 0
+
 # set the start and goal positions
-start = (30, 280)
-goal = (50, 150)
+start = (50, 300)
+goal = (250, 50)
 
 # find the shortest path from start to goal using the A* algorithm
 print(maze.shape)
-path_length, path = astar(start, goal, maze)
+path_length, path = astar(start, goal, maze, prox_maze)
+
 
 # print the results
 if path is not None:
@@ -327,7 +392,6 @@ for ind in range(len(path) -1):
     thickness = 1
     cv.polylines(new_img, [points], isClosed=True, color=color, thickness=thickness)
 
-    
 
 plt.imshow(new_img)
 plt.show()
