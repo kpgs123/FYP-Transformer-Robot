@@ -10,7 +10,7 @@ if not cap.isOpened():
 
 # Define the codec and create a VideoWriter object
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
-output_file = "output.avi"
+output_file = "output2.avi"
 output_size = (800, 600)
 fps = 15
 out = cv2.VideoWriter(output_file, fourcc, fps, output_size)

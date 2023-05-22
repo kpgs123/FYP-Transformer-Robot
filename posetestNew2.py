@@ -7,6 +7,7 @@ import math
 dict_aruco = aruco.Dictionary_get(aruco.DICT_4X4_50)
 parameters = aruco.DetectorParameters_create()
 url = "G:/sem 7/FYP/New Git/FYP-Transformer-Robot/output.avi"
+#url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
 path = np.empty((0, 2), float)
 camera_matrix = np.load("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/CaliFinal/camera_matrix.npy")
 dist_coeffs = np.load("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/CaliFinal/distortion_coeffs.npy")
@@ -51,15 +52,17 @@ try:
                 z_rot_deg = round(math.degrees(z_rot), 2)
 
                 R, _ = cv2.Rodrigues(rvec)
-
-                x_rot = round(math.degrees(math.atan2(R[2, 1], R[2, 2])), 2)
-                y_rot = round(math.degrees(math.atan2(-R[2, 0], math.sqrt(R[2, 1]**2 + R[2, 2]**2))), 2)
                 z_rot = round(math.degrees(math.atan2(R[1, 0], R[0, 0])), 2)
 
                 # Print rotation angles on the frame
-                cv2.putText(frame, f"X Rotation: {x_rot}", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 250), 2)
-                cv2.putText(frame, f"Y Rotation: {y_rot}", (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 250), 2)
-                cv2.putText(frame, f"Z Rotation: {z_rot}", (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 250), 2)
+                cv2.putText(frame, f"Z Rotation: {z_rot}", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 250, 0), 2)
+
+                # Get x and y vectors in marker's coordinate system
+                x_axis = np.dot(R, np.array([1, 0, 0]).T)
+                y_axis = np.dot(R, np.array([0, 1, 0]).T)
+
+                centroid = np.mean(corners[0][0], axis=0)
+                path = np.append(path , np.array([centroid]), axis=0)
 
                 frame_markers = aruco.drawDetectedMarkers(frame.copy(), corners, ids)
                 cv2.imshow('frame', frame_markers)
