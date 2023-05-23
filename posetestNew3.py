@@ -13,9 +13,9 @@ camera_matrix = np.load("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/CaliFinal/ca
 dist_coeffs = np.load("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/CaliFinal/distortion_coeffs.npy")
 
 # Define the region of interest (ROI) to crop
-start_x = 75  # Starting x-coordinate of the ROI
+start_x = 70  # Starting x-coordinate of the ROI
 start_y = 5  # Starting y-coordinate of the ROI
-end_x = 706   # Ending x-coordinate of the ROI
+end_x = 716   # Ending x-coordinate of the ROI
 end_y = 589   # Ending y-coordinate of the ROI
 
 
@@ -69,14 +69,14 @@ try:
                 z_rot = round(math.degrees(math.atan2(R[1, 0], R[0, 0])), 2)
 
                 # Print rotation angles on the frame
-                cv2.putText(cropped_frame, f"Z Rotation: {z_rot}", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 250, 0), 2)
+                cv2.putText(cropped_frame, f"Rotation: {z_rot}", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 250, 0), 2)
 
                 # Get x and y vectors in marker's coordinate system
                 x_axis = np.dot(R, np.array([1, 0, 0]).T)
                 y_axis = np.dot(R, np.array([0, 1, 0]).T)
 
                 centroid = np.mean(corners[0][0], axis=0)
-                cv2.putText(cropped_frame, f"Z position: {centroid}", (10,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 250, 0), 2)
+                cv2.putText(cropped_frame, f"position: {centroid}", (10,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 250, 0), 2)
 
                 path = np.append(path , np.array([centroid]), axis=0)
 
