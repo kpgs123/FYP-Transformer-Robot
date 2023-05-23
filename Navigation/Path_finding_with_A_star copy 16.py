@@ -242,7 +242,7 @@ def astar(start, goal, grid, prox_grid):
 
             cond = (abs(pos[0] - neighbor[0])) and abs(pos[1] - neighbor[1])
             if brown_mask_bool[pos[0], pos[1]] == 0:
-                g = cost_for_collision + 100
+                g = cost_for_collision + 10000000000
             else:
                 g = cost_for_collision
             if not cond:
@@ -310,12 +310,12 @@ def obstcle_inside_the_shape_o(x1, x2, y1, y2, prox_grid):
     count = 0
     for y in range(y1, y2 + 1):
         for x in range(x1, x2 + 1):
-            count += prox_grid[x, y]
+            count += prox_grid[x, y]*10
     return count
 
 # set the start and goal positions
 start = (50, 300)
-goal = (300, 60)
+goal = (100, 55)
 
 # find the shortest path from start to goal using the A* algorithm
 print(maze.shape)

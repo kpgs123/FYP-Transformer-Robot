@@ -9,7 +9,7 @@ import time
 
 
 # Load the image
-img = cv.imread("D:/Git/FYP-Transformer-Robot/Navigation/1.jpg")
+img = cv.imread("D:/Git/FYP-Transformer-Robot/Navigation/picture1.jpg")
 
 img = cv.resize(img, (img.shape[:2][1] // 5, img.shape[:2][0] // 5), interpolation = cv.INTER_CUBIC)
 
