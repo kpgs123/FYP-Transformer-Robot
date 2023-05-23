@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 # Load the distorted image
-distorted_image = cv2.imread('G:/sem 7/FYP/New Git/FYP-Transformer-Robot/camera_image.jpg')
+distorted_image = cv2.imread('G:/sem 7/FYP/New Git/FYP-Transformer-Robot/pic/picture1.jpg')
 
 #distorted_image = cv2.resize(distorted_image, (100, 75))
 
