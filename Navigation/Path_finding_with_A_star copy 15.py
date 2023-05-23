@@ -9,9 +9,9 @@ import time
 
 
 # Load the image
-img = cv.imread("D:/Git/FYP-Transformer-Robot/Navigation/picture1.jpg")
+img = cv.imread("D:/Git/FYP-Transformer-Robot/Navigation/undistorted_image.jpg")
 
-img = cv.resize(img, (img.shape[:2][1] // 5, img.shape[:2][0] // 5), interpolation = cv.INTER_CUBIC)
+#img = cv.resize(img, (img.shape[:2][1] // 5, img.shape[:2][0] // 5), interpolation = cv.INTER_CUBIC)
 
 src_points = []
 
@@ -48,12 +48,12 @@ cv.waitKey(0)
 # Convert the image to the HSV color space
 hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
 cv.imshow("hsv", hsv)
-print(hsv[260, 130])
+print(hsv[274, 110])
 
 
 # Define the range of hue, saturation, and value values to keep
 lower_threshold = (0, 0, 0)
-upper_threshold = (120, 255, 255)
+upper_threshold = (150, 255, 255)
 
 # Threshold the image to create a binary image
 binary_image = cv.inRange(hsv, lower_threshold, upper_threshold)
@@ -71,8 +71,8 @@ masked_image = cv.bitwise_and(img, img, mask=binary_image)
 '''for identify the main path'''
 
 # Define lower and upper thresholds for brown
-lower_brown = (90, 0, 0)
-upper_brown = (120, 90, 180)
+lower_brown = (50, 75, 40)
+upper_brown = (130, 255, 255)
 
 # Create binary mask using inRange function
 brown_mask = cv.inRange(hsv, lower_brown, upper_brown)
@@ -315,7 +315,7 @@ def obstcle_inside_the_shape_o(x1, x2, y1, y2, prox_grid):
 
 # set the start and goal positions
 start = (50, 300)
-goal = (300, 60)
+goal = (300, 50)
 
 # find the shortest path from start to goal using the A* algorithm
 print(maze.shape)
