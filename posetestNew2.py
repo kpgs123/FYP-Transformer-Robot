@@ -62,6 +62,8 @@ try:
                 y_axis = np.dot(R, np.array([0, 1, 0]).T)
 
                 centroid = np.mean(corners[0][0], axis=0)
+                cv2.putText(frame, f"Z position: {centroid}", (10,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 250, 0), 2)
+
                 path = np.append(path , np.array([centroid]), axis=0)
 
                 frame_markers = aruco.drawDetectedMarkers(frame.copy(), corners, ids)
