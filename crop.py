@@ -4,46 +4,46 @@ import matplotlib.pyplot as plt
 
 url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
 
-# Load camera matrix and distortion matrix from numpy arrays
-camera_matrix = np.load('camera.npy')
-distortion_matrix = np.load('distortion.npy')
-
-# Open the video capture for webcam
-video = cv2.VideoCapture(url)
-# Get video properties
-width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
-height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
-fps = video.get(cv2.CAP_PROP_FPS)
-
-# Define the region of interest (ROI) to crop
-start_x = 100  # Starting x-coordinate of the ROI
-start_y = 100  # Starting y-coordinate of the ROI
-end_x = 400    # Ending x-coordinate of the ROI
-end_y = 300    # Ending y-coordinate of the ROI
+# Open the webcam
+cap = cv2.VideoCapture(url)
+camera_matrix = np.load("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/CaliFinal/camera_matrix.npy")
+dist_coeffs = np.load("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/CaliFinal/distortion_coeffs.npy")
 
 
-while True:
-    # Read a frame from the video capture
-    ret, frame = video.read()
-    if not ret:
-        break
+# Check if the webcam is opened successfully
+if not cap.isOpened():
+    print("Failed to open the webcam")
+    exit()
 
-    # Undistort the frame
-    undistorted_frame = cv2.undistort(frame, camera_matrix, distortion_matrix)
+# Read a frame from the webcam
+ret, frame = cap.read()
 
-    # Crop the undistorted frame
-    cropped_frame = undistorted_frame[start_y:end_y, start_x:end_x]
+# Check if the frame is read successfully
+if not ret:
+    print("Failed to read the frame")
+    exit()
 
+# Undistort the frame
+undistorted_frame = cv2.undistort(frame, camera_matrix, dist_coeffs)
 
+# Convert the frame from BGR to RGB color space
+undistorted_frame_rgb = cv2.cvtColor(undistorted_frame, cv2.COLOR_BGR2RGB)
 
-    # Display the cropped frame
-    cv2.imshow('Cropped Video', cropped_frame)
+# Display the undistorted frame
+plt.imshow(undistorted_frame_rgb)
+plt.axis('off')
+plt.show()
 
-    # Break the loop if 'q' is pressed
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+# Get the pixel coordinates
+def onclick(event):
+    print("Pixel coordinates (x, y):", event.x, event.y)
 
-# Release video capture and writer objects, and close windows
-video.release()
-output.release()
-cv2.destroyAllWindows()
+# Create the interactive plot
+fig, ax = plt.subplots()
+ax.imshow(undistorted_frame_rgb)
+ax.axis('off')
+fig.canvas.mpl_connect('button_press_event', onclick)
+plt.show()
+
+# Release the webcam
+cap.release()
