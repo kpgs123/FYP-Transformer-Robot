@@ -25,7 +25,6 @@ end_x = 706   # Ending x-coordinate of the ROI
 end_y = 589   # Ending y-coordinate of the ROI
 
 # Create a VideoWriter object to save the cropped video
-output = cv2.VideoWriter('output_video.mp4', cv2.VideoWriter_fourcc(*'mp4v'), fps, (end_x - start_x, end_y - start_y))
 
 while True:
     # Read a frame from the video capture
@@ -39,8 +38,7 @@ while True:
     # Crop the undistorted frame
     cropped_frame = undistorted_frame[start_y:end_y, start_x:end_x]
 
-    # Write the cropped frame to the output video
-    output.write(cropped_frame)
+
 
     # Display the cropped frame
     cv2.imshow('Cropped Video', cropped_frame)
@@ -51,5 +49,5 @@ while True:
 
 # Release video capture and writer objects, and close windows
 video.release()
-output.release()
+
 cv2.destroyAllWindows()
