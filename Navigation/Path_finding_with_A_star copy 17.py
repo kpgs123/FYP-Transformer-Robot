@@ -155,7 +155,6 @@ def virtualBarrier(t):
 maze = virtualBarrier(5)
 maze = np.array(maze)
 maze = maze.astype(np.int32)
-np.save("maze.npy", maze)
 plt.imshow(maze)
 plt.show()
 
@@ -177,6 +176,9 @@ prox_maze = thicker_image
 
 plt.imshow(prox_maze)
 plt.show()
+
+with open("maze.txt", 'w') as file:
+   file.writelines(str(list(maze)))
 
 def astar(start, goal, grid, prox_grid):
     """
@@ -313,7 +315,7 @@ def obstcle_inside_the_shape_o(x1, x2, y1, y2, prox_grid):
 
 # set the start and goal positions
 start = (50, 300)
-goal = (300, 50)
+goal = (380, 300)
 
 # find the shortest path from start to goal using the A* algorithm
 print(maze.shape)
@@ -324,11 +326,23 @@ path_length, path = astar(start, goal, maze, prox_maze)
 if path is not None:
     print(f"Shortest path length: {path_length}")
     print(f"Shortest path: {path}")
-    np.save("path.npy", path)
 else:
     print("No path found!")
 
 r,c = maze.shape
+with open("solved_maze.txt", 'w') as file:
+    for row in range(r):
+        s = ""
+        for column in range(c):
+            square = maze[row][column]
+            if (row, column) in path:
+                s += '+'
+            elif square == 1:
+                s += '%'
+            else:
+                s += '&'
+            s += ' '
+        file.write(s+'\n')
 
 backtorgb = cv.cvtColor(thresh,cv.COLOR_GRAY2RGB)
 
