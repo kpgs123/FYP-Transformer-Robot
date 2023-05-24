@@ -177,9 +177,6 @@ prox_maze = thicker_image
 plt.imshow(prox_maze)
 plt.show()
 
-with open("maze.txt", 'w') as file:
-   file.writelines(str(list(maze)))
-
 def astar(start, goal, grid, prox_grid):
     """
     Implements the A* algorithm to find the shortest path from start to goal in a 2D grid.
@@ -195,6 +192,7 @@ def astar(start, goal, grid, prox_grid):
     heapq.heappush(pq, (0, start, [start]))
     # initialize the visited set
     visited = set()
+    mx_collision_cost = 0
     
     while len(pq) > 0:
         t = 5
@@ -205,7 +203,7 @@ def astar(start, goal, grid, prox_grid):
             continue
         # if the goal position is reached, return the path
         if pos == goal:
-            return (f, path)
+            return (f, path, mx_collision_cost, turn_cord)
 
         visited.add(pos)
         # expand the position's neighbors and add them to the priority queue
@@ -253,6 +251,9 @@ def astar(start, goal, grid, prox_grid):
 
             h = heuristic(neighbor, goal)
             heapq.heappush(pq, (g + h, neighbor, path + [neighbor]))
+            mx_collision_cost = cost_for_collision if cost_for_collision > mx_collision_cost else mx_collision_cost
+            if mx_collision_cost > 400000:
+               turn_cord = neighbor
 
     # if the goal position is not reached, return None
     return None
@@ -292,7 +293,6 @@ def get_neighbors(pos, grid):
     """
     t = 5
 
-
     neighbors = []
     
     for dx, dy in [(1*t, 0*t), (-1*t, 0*t), (0*t, 1*t), (0*t, -1*t), (-1*t, -1*t), (1*t, -1*t), (1*t, 1*t), (-1*t, 1*t)]:
@@ -315,12 +315,11 @@ def obstcle_inside_the_shape_o(x1, x2, y1, y2, prox_grid):
 
 # set the start and goal positions
 start = (50, 300)
-goal = (380, 300)
+goal = (80, 65)
 
 # find the shortest path from start to goal using the A* algorithm
 print(maze.shape)
-path_length, path = astar(start, goal, maze, prox_maze)
-
+path_length, path, mx_collision_cost, turn_cord = astar(start, goal, maze, prox_maze)
 
 # print the results
 if path is not None:
@@ -330,19 +329,6 @@ else:
     print("No path found!")
 
 r,c = maze.shape
-with open("solved_maze.txt", 'w') as file:
-    for row in range(r):
-        s = ""
-        for column in range(c):
-            square = maze[row][column]
-            if (row, column) in path:
-                s += '+'
-            elif square == 1:
-                s += '%'
-            else:
-                s += '&'
-            s += ' '
-        file.write(s+'\n')
 
 backtorgb = cv.cvtColor(thresh,cv.COLOR_GRAY2RGB)
 
@@ -382,7 +368,6 @@ for ind in range(len(path) -1):
     thickness = 1
     cv.polylines(new_img, [points], isClosed=True, color=color, thickness=thickness)
 
-
 plt.imshow(new_img)
 plt.show()
 
@@ -413,6 +398,7 @@ for node_index in range(len(path)-1):
    orientations.append(direction)
 
 print(orientations)
+print(mx_collision_cost, turn_cord)
 
 scale_factor = 12
 
