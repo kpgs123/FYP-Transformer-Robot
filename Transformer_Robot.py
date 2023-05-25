@@ -42,6 +42,7 @@ cropped_frame = undistorted_frame[start_y:end_y, start_x:end_x]
 
 
 img = cropped_frame
+print(img)
 
 # Display the transformed image
 #cv.imshow('Transformed Image', img)
@@ -49,7 +50,7 @@ img = cropped_frame
 
 # Convert the image to the HSV color space
 hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-#cv.imshow("hsv", hsv)
+cv.imshow("hsv", hsv)
 #print(hsv[274, 110])
 
 
@@ -114,8 +115,8 @@ blured_img = cv.GaussianBlur(gray_img, (5, 5), cv.BORDER_DEFAULT)
 #cv.waitKey(0)
 #cv.destroyAllWindows()
 ret, thresh = cv.threshold(blured_img, 210, 255, cv.THRESH_BINARY)
-#plt.imshow(thresh)
-#plt.show()
+plt.imshow(thresh)
+plt.show()
 
 def bool_mat(mat):
     new_mat = np.zeros(mat.shape, dtype=bool)
@@ -155,8 +156,8 @@ maze = virtualBarrier(5)
 maze = np.array(maze)
 maze = maze.astype(np.int32)
 #np.save("maze.npy", maze)
-#plt.imshow(maze)
-#plt.show()
+plt.imshow(maze)
+plt.show()
 
 # Load the image (1 represents movable area, 0 represents obstacle area)
 image = np.float32(maze) * 255
@@ -174,8 +175,8 @@ thicker_image = cv.filter2D(image, -1, gaussian_kernel)
 prox_maze = thicker_image
 
 
-#plt.imshow(prox_maze)
-#plt.show()
+plt.imshow(prox_maze)
+plt.show()
 
 def astar(start, goal, grid, prox_grid):
     """
@@ -216,7 +217,7 @@ def astar(start, goal, grid, prox_grid):
             y_cm = [8.5, -25.5, -25.5, 8.5, 8.5]
 
             # Image and area dimensions
-            image_size = 400
+            image_size = 584
             area_width_cm = 240
             area_height_cm = 240
 
@@ -293,16 +294,17 @@ def get_neighbors(pos, grid):
     
     for dx, dy in [(1*t, 0*t), (-1*t, 0*t), (0*t, 1*t), (0*t, -1*t), (-1*t, -1*t), (1*t, -1*t), (1*t, 1*t), (-1*t, 1*t)]:
         x, y = pos[0] + dx, pos[1] + dy
+        print(pos)
         if x < 0 or x >= grid.shape[0] or y < 0 or y >= grid.shape[1] or grid[x, y] == 1:
             continue
         neighbors.append((x, y))
     return neighbors
 
 def obstcle_inside_the_shape_o(x1, x2, y1, y2, prox_grid):
-    if x2 >= 400:
-        x2 = 399
-    if y2 >= 400:
-        y2 = 399
+    if x2 >= prox_grid.shape[0]:
+        x2 = prox_grid.shape[0] - 1
+    if y2 >= prox_grid.shape[1]:
+        y2 = prox_grid.shape[1] - 1
     count = 0
     for y in range(y1, y2 + 1):
         for x in range(x1, x2 + 1):
@@ -334,117 +336,117 @@ if len(corners) > 0:
 
     centroid = np.mean(corners[0][0], axis=0)
 
-# set the start and goal positions
-start = centroid
-goal = (300, 50)
+    # set the start and goal positions
+    start = tuple(centroid)
+    goal = (175, 210)
 
-# find the shortest path from start to goal using the A* algorithm
-#print(maze.shape)
-path_length, path = astar(start, goal, maze, prox_maze)
-
-
-# print the results
-if path is not None:
-    print(f"Shortest path length: {path_length}")
-    print(f"Shortest path: {path}")
-    #np.save("path.npy", path)
-else:
-    print("No path found!")
-
-r,c = maze.shape
-
-backtorgb = cv.cvtColor(thresh,cv.COLOR_GRAY2RGB)
-
-new_img = np.array(img)
-
-path_arr = np.zeros([r, c])
-for ind in range(len(path) -1):
-    y1, x1 = path[ind]
-    y2, x2 = path[ind+1]
-    cv.line(new_img, (x1, y1), (x2, y2), (0, 255, 0), 1)
-
-    # Given coordinates in cm
-    x_cm = [8.5, 8.5, -25.5, -25.5, 8.5]
-    y_cm = [8.5, -25.5, -25.5, 8.5, 8.5]
-
-    # Image and area dimensions
-    image_size = 400
-    area_width_cm = 240
-    area_height_cm = 240
-
-    # Calculate the scaling factor
-    scale_x = image_size / area_width_cm
-    scale_y = image_size / area_height_cm
-
-    # Pixel offset from the origin
-    offset_x = x2
-    offset_y = y2
-
-    # Scale the coordinates from cm to pixels
-    x_px = [(int(-x * scale_x) + offset_x) for x in x_cm]
-    y_px = [(int(-y * scale_y) + offset_y) for y in y_cm]
-
-    # Draw the square on the image
-    points = np.array([(x, y) for x, y in zip(x_px, y_px)], np.int32)
-    points = points.reshape((-1, 1, 2))
-    color = (255, 0, 0)  # Blue color in BGR format
-    thickness = 1
-    cv.polylines(new_img, [points], isClosed=True, color=color, thickness=thickness)
+    # find the shortest path from start to goal using the A* algorithm
+    #print(maze.shape)
+    path_length, path = astar(start, goal, maze, prox_maze)
 
 
-plt.imshow(new_img)
-plt.show()
+    # print the results
+    if path is not None:
+        print(f"Shortest path length: {path_length}")
+        print(f"Shortest path: {path}")
+        #np.save("path.npy", path)
+    else:
+        print("No path found!")
 
-orientations = []
+    r,c = maze.shape
 
-for node_index in range(len(path)-1):
-    x2, y2 = path[node_index + 1]
-    x1, y1 = path[node_index]
-    if x2 - x1 == 0:
-        if y2 - y1 > 0:
-            direction = '4'
-        else:
-            direction = '6'
-    elif y2 - y1 == 0:
-        if x2 - x1 > 0:
-            direction = '8'
-        else:
-            direction = '2'
-    elif x2 - x1 > 0 and y2 - y1 > 0:
-        direction = '7'
-    elif x2 - x1 < 0 and y2 - y1 > 0:
-        direction = '1'
-    elif x2 - x1 < 0 and y2 - y1 < 0:
-        direction = '3'
-    elif x2 - x1 > 0 and y2 - y1 < 0:
-        direction = '9'
-    
-orientations.append(direction)
+    backtorgb = cv.cvtColor(thresh,cv.COLOR_GRAY2RGB)
 
-print(orientations)
+    new_img = np.array(img)
 
-# Replace "/dev/tty.SLAB_USBtoUART" with the Bluetooth serial port of your ESP32
-ser = serial.Serial('COM12', 9600, timeout=2)
+    path_arr = np.zeros([r, c])
+    for ind in range(len(path) -1):
+        y1, x1 = path[ind]
+        y2, x2 = path[ind+1]
+        cv.line(new_img, (x1, y1), (x2, y2), (0, 255, 0), 1)
 
-# Define a callback function to handle key presses
-def sendNode(oreintation, t):
-    #t1 = time.time()
-    #t2 = time.time()
-    ser.write(str(oreintation).encode())
-    time.sleep(0.4)
-    #t2 = time.time()
+        # Given coordinates in cm
+        x_cm = [8.5, 8.5, -25.5, -25.5, 8.5]
+        y_cm = [8.5, -25.5, -25.5, 8.5, 8.5]
 
-# Keep the program running to allow key presses to be detected
-i = 0
-while i < len(orientations) - 1:
-    sendNode(orientations[i])
-    data = ser.readline()
-    s = data.decode()
-    s = s[:-2]
-    if len(s):
-        print(s)
-    i += 1
-    #PID Controller here
+        # Image and area dimensions
+        image_size = 584
+        area_width_cm = 240
+        area_height_cm = 240
+
+        # Calculate the scaling factor
+        scale_x = image_size / area_width_cm
+        scale_y = image_size / area_height_cm
+
+        # Pixel offset from the origin
+        offset_x = x2
+        offset_y = y2
+
+        # Scale the coordinates from cm to pixels
+        x_px = [(int(-x * scale_x) + offset_x) for x in x_cm]
+        y_px = [(int(-y * scale_y) + offset_y) for y in y_cm]
+
+        # Draw the square on the image
+        points = np.array([(x, y) for x, y in zip(x_px, y_px)], np.int32)
+        points = points.reshape((-1, 1, 2))
+        color = (255, 0, 0)  # Blue color in BGR format
+        thickness = 1
+        cv.polylines(new_img, [points], isClosed=True, color=color, thickness=thickness)
+
+
+    plt.imshow(new_img)
+    plt.show()
+
+    orientations = []
+
+    for node_index in range(len(path)-1):
+        x2, y2 = path[node_index + 1]
+        x1, y1 = path[node_index]
+        if x2 - x1 == 0:
+            if y2 - y1 > 0:
+                direction = '4'
+            else:
+                direction = '6'
+        elif y2 - y1 == 0:
+            if x2 - x1 > 0:
+                direction = '8'
+            else:
+                direction = '2'
+        elif x2 - x1 > 0 and y2 - y1 > 0:
+            direction = '7'
+        elif x2 - x1 < 0 and y2 - y1 > 0:
+            direction = '1'
+        elif x2 - x1 < 0 and y2 - y1 < 0:
+            direction = '3'
+        elif x2 - x1 > 0 and y2 - y1 < 0:
+            direction = '9'
+        
+    orientations.append(direction)
+
+    print(orientations)
+
+    # Replace "/dev/tty.SLAB_USBtoUART" with the Bluetooth serial port of your ESP32
+    ser = serial.Serial('COM12', 9600, timeout=2)
+
+    # Define a callback function to handle key presses
+    def sendNode(oreintation, t):
+        #t1 = time.time()
+        #t2 = time.time()
+        ser.write(str(oreintation).encode())
+        time.sleep(0.4)
+        #t2 = time.time()
+
+    # Keep the program running to allow key presses to be detected
+    i = 0
+    while i < len(orientations) - 1:
+        sendNode(orientations[i])
+        data = ser.readline()
+        s = data.decode()
+        s = s[:-2]
+        if len(s):
+            print(s)
+        i += 1
+        #PID Controller here
 
 try:
     last_frame_time = time.time()
