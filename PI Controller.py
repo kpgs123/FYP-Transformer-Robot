@@ -3,11 +3,12 @@ from cv2 import aruco
 import time
 import numpy as np
 import math
+import serial
 
 dict_aruco = aruco.Dictionary_get(aruco.DICT_4X4_50)
 parameters = aruco.DetectorParameters_create()
-#url = "G:/sem 7/FYP/New Git/FYP-Transformer-Robot/output.avi"
-url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
+url = "E:/sem 7-------------/Final Year Design Project/final/FYP-Transformer-Robot/output.avi"
+#url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
 path = np.empty((0, 2), float)
 camera_matrix = np.load("E:/sem 7-------------/Final Year Design Project/final/FYP-Transformer-Robot/CaliFinal/camera_matrix.npy")
 dist_coeffs = np.load("E:/sem 7-------------/Final Year Design Project/final/FYP-Transformer-Robot/CaliFinal/distortion_coeffs.npy")
@@ -103,6 +104,7 @@ try:
                     # Calculate the error vector
                     error_vector = (desired_pose[0] - current_pose[0], desired_pose[1] - current_pose[1])
                     print(error_vector)
+
                     # Check if the error distance is within the error margin
                     if abs(error_vector[0]) <= error_margin and abs(error_vector[1]) <= error_margin:
                         print("Robot reached the desired pose.")
@@ -117,8 +119,42 @@ try:
                         control_x = Kp * error_vector[0] + Ki * integral_x + Kp * (error_vector[0] - prev_error_x)
                         control_y = Kp * error_vector[1] + Ki * integral_y + Kp * (error_vector[1] - prev_error_y)
 
+                        orientations = []
                         # control signal to control the robot's movement
-                        
+                        if control_x >= error_margin and control_x > 0:
+                            orientations.append(8)
+                        elif control_x >= error_margin and control_x < 0:
+                            orientations.append(2)
+                        elif control_y >= error_margin and control_y > 0:
+                            orientations.append(6) 
+                        elif control_y >= error_margin and control_y < 0:
+                            orientations.append(4)  
+
+                    # Replace "/dev/tty.SLAB_USBtoUART" with the Bluetooth serial port of your ESP32
+                    ser = serial.Serial('COM9', 9600, timeout=20)
+
+                    # Define a callback function to handle key presses
+                    def sendNode(oreintation):
+                        t1 = time.time()
+                        t2 = time.time()
+                        while t2 - t1 < 2:
+                            ser.write(str(oreintation).encode())
+                            time.sleep(0.5)
+                            t2 = time.time()
+
+                        '''for i in orientations:
+                        sendNode(i)'''
+
+                        # Keep the program running to allow key presses to be detected
+                    i = 0
+                    while i < len(orientations) - 1:
+                        sendNode(orientations[i])
+                        data = ser.readline()
+                        s = data.decode()
+                        s = s[:-2]
+                        if len(s):
+                            print(s)
+                        i += 1
                      
 
                         # Update the current pose of the robot
@@ -147,7 +183,8 @@ try:
                         y_axis = np.dot(R, np.array([0, 1, 0]).T)
 
                         centroid = np.mean(corners[0][0], axis=0)
-
+                        frame_markers = aruco.drawDetectedMarkers(cropped_frame.copy(), corners, ids)
+                        cv2.imshow('frame', frame_markers)
                         # Loop until the robot reaches the desired pose
             
                         current_pose = (centroid[0], centroid[1])
