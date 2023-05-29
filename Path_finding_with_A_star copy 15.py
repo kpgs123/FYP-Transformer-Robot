@@ -8,6 +8,11 @@ import serial
 import time
 from cv2 import aruco
 
+
+def nearest_pix_cord(cord):
+   t = 5
+   return cord - cord % t
+
 dict_aruco = aruco.Dictionary_get(aruco.DICT_4X4_50)
 parameters = aruco.DetectorParameters_create()
 
@@ -316,11 +321,11 @@ def obstcle_inside_the_shape_o(x1, x2, y1, y2, prox_grid):
     return count
 
 # set the start and goal positions
-start = (50, 205)
-goal = (400, 50)
+'''start = (50, 205)
+goal = (400, 50)'''
 
-'''
-frame = cv.imread("D:/Git/FYP-Transformer-Robot/imgesOfRobo/image4.jpg")
+
+frame = cv.imread("D:/Git/FYP-Transformer-Robot/imgesOfRobo/image1.jpg")
 
 # Undistort the frame
 undistorted_frame = cv.undistort(frame, camera_matrix, dist_coeffs)
@@ -359,11 +364,10 @@ if len(corners) > 0:
 
     centroid = np.mean(corners[0][0], axis=0)
     centroid = centroid[::-1]
-    start = tuple(map(int, centroid))
+    start = tuple(map(nearest_pix_cord, map(int, centroid)))
     print(start)
-    #start = (400, 200)
 
-goal = (100, 420)'''
+goal = (100, 400) # must provide integer multiplication of t
 
 # find the shortest path from start to goal using the A* algorithm
 print(maze.shape)
@@ -377,7 +381,7 @@ r,c = maze.shape
 
 backtorgb = cv.cvtColor(thresh,cv.COLOR_GRAY2RGB)
 
-new_img = np.array(img)
+new_img = np.array(cropped_frame)
 
 path_arr = np.zeros([r, c])
 for ind in range(len(path) -1):
