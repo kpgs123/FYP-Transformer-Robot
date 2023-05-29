@@ -40,14 +40,20 @@ undistorted_frame = cv.undistort(frame, camera_matrix, dist_coeffs)
 
 # Crop the undistorted frame
 cropped_frame = undistorted_frame[start_y:end_y, start_x:end_x]
+angle = 180
+height, width = cropped_frame.shape[:2]
+center = (width // 2, height // 2)
+
+rotation_matrix = cv.getRotationMatrix2D(center, angle, 1.0)
+img = cv.warpAffine(cropped_frame, rotation_matrix, (width, height))
 
 # Convert the image to the HSV color space
-img = cropped_frame
 # Apply Gaussian blur
 #img = cv.GaussianBlur(img, (9, 9), 0)
 hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
 cv.imshow("hsv", hsv)
 print(hsv[440, 70])
+
 
 
 # Define the range of hue, saturation, and value values to keep
@@ -356,6 +362,14 @@ undistorted_frame = cv.undistort(frame, camera_matrix, dist_coeffs)
 # Crop the undistorted frame
 cropped_frame = undistorted_frame[start_y:end_y, start_x:end_x]
 
+angle = 180
+height, width = cropped_frame.shape[:2]
+center = (width // 2, height // 2)
+
+
+rotation_matrix = cv.getRotationMatrix2D(center, angle, 1.0)
+cropped_frame = cv.warpAffine(cropped_frame, rotation_matrix, (width, height))
+
 gray = cv.cvtColor(cropped_frame, cv.COLOR_RGB2GRAY)
 corners, ids, rejectedImgPoints = aruco.detectMarkers(gray, dict_aruco, parameters=parameters)
 
@@ -383,16 +397,12 @@ if len(corners) > 0:
     print(start)
     #start = (400, 200)'''
 
-goal = (180, 450)
+goal = (400, 100)
 
 # find the shortest path from start to goal using the A* algorithm
 print(maze.shape)
 
 # print the results
-plt.imshow(maze)
-plt.show()
-plt.imshow(prox_maze)
-plt.show()
 path_length, path = astar(start, goal, maze, prox_maze)
 print(f"Shortest path length: {path_length}")
 print(f"Shortest path: {path}")
