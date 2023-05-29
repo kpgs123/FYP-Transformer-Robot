@@ -13,6 +13,16 @@ def nearest_pix_cord(cord):
    t = 5
    return cord - cord % t
 
+def rotate_point(x, y, angle):
+    theta = math.radians(angle)
+    cos_theta = math.cos(theta)
+    sin_theta = math.sin(theta)
+    
+    x_rot = x * cos_theta - y * sin_theta
+    y_rot = x * sin_theta + y * cos_theta
+    
+    return x_rot, y_rot
+
 dict_aruco = aruco.Dictionary_get(aruco.DICT_4X4_50)
 parameters = aruco.DetectorParameters_create()
 
@@ -186,7 +196,7 @@ prox_maze = thicker_image
 plt.imshow(prox_maze)
 plt.show()
 
-def astar(start, goal, grid, prox_grid):
+def astar(start, goal, grid, prox_grid, angle):
     """
     Implements the A* algorithm to find the shortest path from start to goal in a 2D grid.
     :param start: a tuple representing the starting position in the grid
@@ -237,12 +247,37 @@ def astar(start, goal, grid, prox_grid):
             offset_x = neighbor[0]
             offset_y = neighbor[1]
 
+            #print(x_set, y_set)
             # Scale the coordinates from cm to pixels
-            x_px = [(int(-x * scale_x) + offset_x) for x in x_cm]
-            y_px = [(int(-y * scale_y) + offset_y) for y in y_cm]
+            x_px = [int(-x * scale_x) for x in x_cm]
+            y_px = [int(-y * scale_y) for y in y_cm]
+
+            rot_x_set = []
+            rot_y_set = []
+
+            for x, y in zip(x_px, y_px):
+                x_, y_ = rotate_point(x, y, angle)
+                rot_x_set.append(x_)
+                rot_y_set.append(y_)
+
+            x_px = rot_x_set
+            y_px = rot_y_set
+
+            x_px = list(map(int, x_px))
+            y_px = list(map(int, y_px))
+
+            # Scale the coordinates from cm to pixels
+            x_px = [(x + offset_x) for x in x_px]
+            y_px = [(y + offset_y) for y in y_px]
+
 
             x_set = sorted(set(x_px))
             y_set = sorted(set(y_px))
+
+
+            #print(x_set, y_set)
+            #print()
+
 
             cost_for_collision = obstcle_inside_the_shape_o(x_set[0], x_set[1], y_set[0], y_set[1], prox_grid)
 
@@ -373,7 +408,7 @@ goal = (130, 50) # must provide integer multiplication of t
 print(maze.shape)
 
 # print the results
-path_length, path = astar(start, goal, maze, prox_maze)
+path_length, path = astar(start, goal, maze, prox_maze, z_rot_deg)
 print(f"Shortest path length: {path_length}")
 print(f"Shortest path: {path}")
 np.save("path.npy", path)
@@ -407,8 +442,27 @@ for ind in range(len(path) -1):
     offset_y = y1
 
     # Scale the coordinates from cm to pixels
-    x_px = [(int(-x * scale_x) + offset_x) for x in x_cm]
-    y_px = [(int(-y * scale_y) + offset_y) for y in y_cm]
+    x_px = [int(-x * scale_x) for x in x_cm]
+    y_px = [int(-y * scale_y) for y in y_cm]
+
+    rot_x_set = []
+    rot_y_set = []
+
+    for x, y in zip(x_px, y_px):
+        x_, y_ = rotate_point(x, y, z_rot_deg)
+        rot_x_set.append(x_)
+        rot_y_set.append(y_)
+
+    x_px = rot_x_set
+    y_px = rot_y_set
+
+    x_px = list(map(int, x_px))
+    y_px = list(map(int, y_px))
+
+    # Scale the coordinates from cm to pixels
+    x_px = [(x + offset_x) for x in x_px]
+    y_px = [(y + offset_y) for y in y_px]
+
 
     # Draw the square on the image
     points = np.array([(x, y) for x, y in zip(x_px, y_px)], np.int32)
