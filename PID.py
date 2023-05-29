@@ -63,7 +63,7 @@ dt = 0.001
 
 # PID gains
 Kp = 0.5
-Ki = 0.1
+#Ki = 0.1
 Kd = 0.2
 
 # Create PID controller
@@ -127,6 +127,7 @@ while True:
             control_output_y = pid_controller.calculate(error_y, dt)
 
             print(control_output_x, control_output_y)
+            
 
             # Apply the control outputs to control the robot's position or movement
             #move_robot(control_output_x, control_output_y)
