@@ -234,8 +234,9 @@ def astar(start, goal, grid, prox_grid):
             y_set = sorted(set(y_px))
 
             cost_for_collision = obstcle_inside_the_shape_o(x_set[0], x_set[1], y_set[0], y_set[1], prox_grid)
+            #print(neighbor, cost_for_collision)
 
-            cond = (abs(pos[0] - neighbor[0])) and abs(pos[1] - neighbor[1])
+            cond = (bool(pos[0] - neighbor[0])) and bool(pos[1] - neighbor[1])
             if brown_mask_bool[pos[0], pos[1]] == 0:
                 g = cost_for_collision + 100
             else:
@@ -243,14 +244,48 @@ def astar(start, goal, grid, prox_grid):
             if not cond:
                 g += f + 1*t
             else:
-                g += f + math.sqrt(2)*t*10
+                g += f + math.sqrt(2)*t
                 #g = f + 2*t**2
 
             h = heuristic(neighbor, goal)
             heapq.heappush(pq, (g + h, neighbor, path + [neighbor]))
 
     # if the goal position is not reached, return None
-    print(path)
+    new_img = np.array(img)
+    for ind in range(len(path) -1):
+        y1, x1 = path[ind]
+        y2, x2 = path[ind+1]
+        cv.line(new_img, (x1, y1), (x2, y2), (0, 255, 0), 1)
+
+        # Given coordinates in cm
+        x_cm = [8.5, 8.5, -25.5, -25.5, 8.5]
+        y_cm = [8.5, -25.5, -25.5, 8.5, 8.5]
+
+        # Image and area dimensions
+        image_size = 600
+        area_width_cm = 220
+        area_height_cm = 220
+
+        # Calculate the scaling factor
+        scale_x = image_size / area_width_cm
+        scale_y = image_size / area_height_cm
+
+        # Pixel offset from the origin
+        offset_x = x2
+        offset_y = y2
+
+        # Scale the coordinates from cm to pixels
+        x_px = [(int(x * scale_x) + offset_x) for x in x_cm]
+        y_px = [(int(y * scale_y) + offset_y) for y in y_cm]
+
+        # Draw the square on the image
+        points = np.array([(x, y) for x, y in zip(x_px, y_px)], np.int32)
+        points = points.reshape((-1, 1, 2))
+        color = (255, 0, 0)  # Blue color in BGR format
+        thickness = 1
+        cv.polylines(new_img, [points], isClosed=True, color=color, thickness=thickness)
+    plt.imshow(new_img)
+    plt.show()
     return None
 
 def heuristic(pos, goal):
@@ -348,12 +383,16 @@ if len(corners) > 0:
     print(start)
     #start = (400, 200)'''
 
-goal = (200, 500)
+goal = (180, 450)
 
 # find the shortest path from start to goal using the A* algorithm
 print(maze.shape)
 
 # print the results
+plt.imshow(maze)
+plt.show()
+plt.imshow(prox_maze)
+plt.show()
 path_length, path = astar(start, goal, maze, prox_maze)
 print(f"Shortest path length: {path_length}")
 print(f"Shortest path: {path}")
