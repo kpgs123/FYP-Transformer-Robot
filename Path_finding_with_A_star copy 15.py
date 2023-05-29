@@ -166,7 +166,7 @@ image = np.float32(maze) * 255
 print(image.shape)
 
 # Create Gaussian kernel
-kernel_size = (5, 5)  # Adjust the kernel size for desired thickness
+kernel_size = (50, 50)  # Adjust the kernel size for desired thickness
 sigma = 1250  # Adjust the sigma value for the spread of the Gaussian
 gaussian_kernel = cv.getGaussianKernel(kernel_size[0], sigma) @ cv.getGaussianKernel(kernel_size[1], sigma).T
 #box_kernel_img = cv.boxFilter(image, -1, kernel_size)
@@ -233,20 +233,19 @@ def astar(start, goal, grid, prox_grid):
             offset_y = neighbor[1]
 
             # Scale the coordinates from cm to pixels
-            x_px = [(int(x * scale_x) + offset_x) for x in x_cm]
-            y_px = [(int(y * scale_y) + offset_y) for y in y_cm]
+            x_px = [(int(-x * scale_x) + offset_x) for x in x_cm]
+            y_px = [(int(-y * scale_y) + offset_y) for y in y_cm]
 
             x_set = sorted(set(x_px))
             y_set = sorted(set(y_px))
 
             cost_for_collision = obstcle_inside_the_shape_o(x_set[0], x_set[1], y_set[0], y_set[1], prox_grid)
-            #print(neighbor, cost_for_collision)
 
-            cond = (bool(pos[0] - neighbor[0])) and bool(pos[1] - neighbor[1])
+            cond = (abs(pos[0] - neighbor[0])) and abs(pos[1] - neighbor[1])
             if brown_mask_bool[pos[0], pos[1]] == 0:
-                g = cost_for_collision + 100
+                g = cost_for_collision / 255 + 20
             else:
-                g = cost_for_collision
+                g = cost_for_collision / 255
             if not cond:
                 g += f + 1*t
             else:
@@ -257,41 +256,7 @@ def astar(start, goal, grid, prox_grid):
             heapq.heappush(pq, (g + h, neighbor, path + [neighbor]))
 
     # if the goal position is not reached, return None
-    new_img = np.array(img)
-    for ind in range(len(path) -1):
-        y1, x1 = path[ind]
-        y2, x2 = path[ind+1]
-        cv.line(new_img, (x1, y1), (x2, y2), (0, 255, 0), 1)
-
-        # Given coordinates in cm
-        x_cm = [8.5, 8.5, -25.5, -25.5, 8.5]
-        y_cm = [8.5, -25.5, -25.5, 8.5, 8.5]
-
-        # Image and area dimensions
-        image_size = 600
-        area_width_cm = 220
-        area_height_cm = 220
-
-        # Calculate the scaling factor
-        scale_x = image_size / area_width_cm
-        scale_y = image_size / area_height_cm
-
-        # Pixel offset from the origin
-        offset_x = x2
-        offset_y = y2
-
-        # Scale the coordinates from cm to pixels
-        x_px = [(int(x * scale_x) + offset_x) for x in x_cm]
-        y_px = [(int(y * scale_y) + offset_y) for y in y_cm]
-
-        # Draw the square on the image
-        points = np.array([(x, y) for x, y in zip(x_px, y_px)], np.int32)
-        points = points.reshape((-1, 1, 2))
-        color = (255, 0, 0)  # Blue color in BGR format
-        thickness = 1
-        cv.polylines(new_img, [points], isClosed=True, color=color, thickness=thickness)
-    plt.imshow(new_img)
-    plt.show()
+    print(path)
     return None
 
 def heuristic(pos, goal):
@@ -340,21 +305,22 @@ def get_neighbors(pos, grid):
     return neighbors
 
 def obstcle_inside_the_shape_o(x1, x2, y1, y2, prox_grid):
-    if x2 >= 600:
-       x2 = 599
-    if y2 >= 600:
-       y2 = 599
+    if x2 >= 400:
+       x2 = 399
+    if y2 >= 400:
+       y2 = 399
     count = 0
     for y in range(y1, y2 + 1):
         for x in range(x1, x2 + 1):
             count += prox_grid[x, y]
-    #print(count)
     return count
 
 # set the start and goal positions
-#start = (487, 180)
-start = (490, 180)
-frame = cv.imread("D:/Git/FYP-Transformer-Robot/imgesOfRobo/image1.jpg")
+start = (50, 205)
+goal = (400, 50)
+
+'''
+frame = cv.imread("D:/Git/FYP-Transformer-Robot/imgesOfRobo/image4.jpg")
 
 # Undistort the frame
 undistorted_frame = cv.undistort(frame, camera_matrix, dist_coeffs)
@@ -395,9 +361,9 @@ if len(corners) > 0:
     centroid = centroid[::-1]
     start = tuple(map(int, centroid))
     print(start)
-    #start = (400, 200)'''
+    #start = (400, 200)
 
-goal = (400, 100)
+goal = (100, 420)'''
 
 # find the shortest path from start to goal using the A* algorithm
 print(maze.shape)
@@ -437,8 +403,8 @@ for ind in range(len(path) -1):
     offset_y = y2
 
     # Scale the coordinates from cm to pixels
-    x_px = [(int(x * scale_x) + offset_x) for x in x_cm]
-    y_px = [(int(y * scale_y) + offset_y) for y in y_cm]
+    x_px = [(int(-x * scale_x) + offset_x) for x in x_cm]
+    y_px = [(int(-y * scale_y) + offset_y) for y in y_cm]
 
     # Draw the square on the image
     points = np.array([(x, y) for x, y in zip(x_px, y_px)], np.int32)
