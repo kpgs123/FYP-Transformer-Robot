@@ -367,7 +367,7 @@ if len(corners) > 0:
     start = tuple(map(nearest_pix_cord, map(int, centroid)))
     print(start)
 
-goal = (100, 400) # must provide integer multiplication of t
+goal = (130, 50) # must provide integer multiplication of t
 
 # find the shortest path from start to goal using the A* algorithm
 print(maze.shape)
@@ -428,22 +428,22 @@ for node_index in range(len(path)-1):
     x1, y1 = path[node_index]
     if x2 - x1 == 0:
         if y2 - y1 > 0:
-            direction = '6'
-        else:
             direction = '4'
+        else:
+            direction = '6'
     elif y2 - y1 == 0:
         if x2 - x1 > 0:
-            direction = '2'
-        else:
             direction = '8'
+        else:
+            direction = '2'
     elif x2 - x1 > 0 and y2 - y1 > 0:
-        direction = '3'
-    elif x2 - x1 < 0 and y2 - y1 > 0:
-        direction = '9'
-    elif x2 - x1 < 0 and y2 - y1 < 0:
         direction = '7'
-    elif x2 - x1 > 0 and y2 - y1 < 0:
+    elif x2 - x1 < 0 and y2 - y1 > 0:
         direction = '1'
+    elif x2 - x1 < 0 and y2 - y1 < 0:
+        direction = '3'
+    elif x2 - x1 > 0 and y2 - y1 < 0:
+        direction = '9'
         
     orientations.append(direction)
 
