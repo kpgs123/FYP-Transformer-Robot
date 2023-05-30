@@ -221,8 +221,8 @@ def astar(start, goal, grid, prox_grid):
             # calculate the g-score and h-score of the neighbor
 
             # Given coordinates in cm
-            x_cm = [8.5, 8.5, -25.5, -25.5, 8.5]
-            y_cm = [8.5, -25.5, -25.5, 8.5, 8.5]
+            x_cm = [8.5,8.5,-8.5,-8.5,8.5]
+            y_cm = [25.5,-42.5,-42.5,25.5,25.5]
 
             # Image and area dimensions
             image_size = 600
@@ -390,8 +390,8 @@ for ind in range(len(path) -1):
     cv.line(new_img, (x1, y1), (x2, y2), (0, 255, 0), 1)
 
     # Given coordinates in cm
-    x_cm = [8.5, 8.5, -25.5, -25.5, 8.5]
-    y_cm = [8.5, -25.5, -25.5, 8.5, 8.5]
+    x_cm = [8.5,8.5,-8.5,-8.5,8.5]
+    y_cm = [25.5,-42.5,-42.5,25.5,25.5]
 
     # Image and area dimensions
     image_size = 600
