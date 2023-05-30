@@ -15,7 +15,7 @@ def close_figure(event):
 
 
 def nearest_pix_cord(cord):
-   t = 5
+   t = 15
    return cord - cord % t
 
 dict_aruco = aruco.Dictionary_get(aruco.DICT_4X4_50)
@@ -167,7 +167,7 @@ def virtualBarrier(t):
             maze_with_barries[i-t, j+t] = 1
   return maze_with_barries
 
-maze = virtualBarrier(5)
+#maze = virtualBarrier(5)
 maze = np.array(maze)
 maze = maze.astype(np.int32)
 np.save("maze.npy", maze)
@@ -181,7 +181,7 @@ image = np.float32(maze) * 255
 print(image.shape)
 
 # Create Gaussian kernel
-kernel_size = (50, 50)  # Adjust the kernel size for desired thickness
+kernel_size = (60, 60)  # Adjust the kernel size for desired thickness
 sigma = 1250  # Adjust the sigma value for the spread of the Gaussian
 gaussian_kernel = cv.getGaussianKernel(kernel_size[0], sigma) @ cv.getGaussianKernel(kernel_size[1], sigma).T
 #box_kernel_img = cv.boxFilter(image, -1, kernel_size)
@@ -215,7 +215,7 @@ def astar(start, goal, grid, prox_grid):
     visited = set()
     
     while len(pq) > 0:
-        t = 5
+        t = 15
         # pop the position with the lowest f-score (i.e., g-score + h-score) from the priority queue
         f, pos, path = heapq.heappop(pq)
 
@@ -256,7 +256,7 @@ def astar(start, goal, grid, prox_grid):
             x_set = sorted(set(x_px))
             y_set = sorted(set(y_px))
 
-            cost_for_collision = obstcle_inside_the_shape_o(x_set[0], x_set[1], y_set[0], y_set[1], prox_grid, grid)
+            cost_for_collision = obstcle_inside_the_shape_o(x_set[0], x_set[1], y_set[0], y_set[1], prox_grid)
 
             cond = (abs(pos[0] - neighbor[0])) and abs(pos[1] - neighbor[1])
             if brown_mask_bool[pos[0], pos[1]] == 0:
@@ -266,7 +266,7 @@ def astar(start, goal, grid, prox_grid):
             if not cond:
                 g += f + 1*t
             else:
-                g += f + math.sqrt(2)*t*10
+                g += f + math.sqrt(2)*t*5
                 #g = f + 2*t**2
 
             h = heuristic(neighbor, goal)
@@ -280,7 +280,7 @@ def heuristic(pos, goal):
     """
     Calculates the heuristic score between the given position and the goal position. In this implementation, the
     heuristic score is the Manhattan distance between the positions.
-    :param pos: a tuple representing the position for which to calculate the heuristic score
+    :param pos: a tuple represegnting the position for which to calculate the heuristic score
     :param goal: a tuple representing the goal position
     :return: the heuristic score between the position and the goal position
     """
@@ -309,7 +309,7 @@ def get_neighbors(pos, grid):
     :param grid: a NumPy array representing the 2D grid
     :return: a list of positions that are adjacent to the given position and are not barriers in the grid
     """
-    t = 5
+    t = 15
 
 
     neighbors = []
@@ -321,7 +321,7 @@ def get_neighbors(pos, grid):
         neighbors.append((x, y))
     return neighbors
 
-def obstcle_inside_the_shape_o(x1, x2, y1, y2, prox_grid, grid):
+def obstcle_inside_the_shape_o(x1, x2, y1, y2, prox_grid):
     if x2 > 599:
        x2 = 599
     if y2 > 599:
@@ -330,10 +330,23 @@ def obstcle_inside_the_shape_o(x1, x2, y1, y2, prox_grid, grid):
     obstacle_inside = False
     for y in range(y1, y2 + 1):
         for x in range(x1, x2 + 1):
-            if not obstacle_inside:
-               obstacle_inside = grid[x, y]
             count += prox_grid[x, y]
     return count
+
+def is_obstcle_inside_the_shape_o(x1, x2, y1, y2, grid):
+    if x2 > 599:
+       x2 = 599
+    if y2 > 599:
+       y2 = 599
+    count = 0
+    for y in range(y1, y2 + 1):
+        for x in range(x1, x2 + 1):
+            if grid[x, y]:
+                count += 1
+                if count > 2500:
+                    return True
+    else:
+        return False
 
 # set the start and goal positions
 '''start = (50, 205)
@@ -382,7 +395,7 @@ if len(corners) > 0:
     start = tuple(map(nearest_pix_cord, map(int, centroid)))
     print(start)
 
-goal = (130, 50) # must provide integer multiplication of t
+goal = (120, 90) # must provide integer multiplication of t
 
 # find the shortest path from start to goal using the A* algorithm
 print(maze.shape)
@@ -394,7 +407,92 @@ print(f"Shortest path: {path}")
 np.save("path.npy", path)
 r,c = maze.shape
 
-backtorgb = cv.cvtColor(thresh,cv.COLOR_GRAY2RGB)
+# Given coordinates in cm
+x_cm = [8.5, 8.5, -25.5, -25.5, 8.5]
+y_cm = [8.5, -25.5, -25.5, 8.5, 8.5]
+
+# Image and area dimensions
+image_size = 600
+area_width_cm = 220
+area_height_cm = 220
+
+# Calculate the scaling factor
+scale_x = image_size / area_width_cm
+scale_y = image_size / area_height_cm
+
+new_img = np.array(cropped_frame)
+
+for i in range(len(path)-1):
+    y1, x1 = path[i]
+    y2, x2 = path[i+1]
+    cv.line(new_img, (x1, y1), (x2, y2), (0, 255, 0), 1)
+
+    # Pixel offset from the origin
+    offset_x = x1
+    offset_y = y1
+
+    # Scale the coordinates from cm to pixels
+    x_px = [(int(-x * scale_x) + offset_x) for x in x_cm]
+    y_px = [(int(-y * scale_y) + offset_y) for y in y_cm]
+
+    x_set = sorted(set(x_px))
+    y_set = sorted(set(y_px))
+
+    # Draw the square on the image
+    points = np.array([(x, y) for x, y in zip(x_px, y_px)], np.int32)
+    points = points.reshape((-1, 1, 2))
+    color = (255, 0, 0)  # Blue color in BGR format
+    thickness = 1
+    cv.polylines(new_img, [points], isClosed=True, color=color, thickness=thickness)
+
+
+    if is_obstcle_inside_the_shape_o(x_set[0], x_set[1], y_set[0], y_set[1], maze):
+       coll_cord = path[i]
+       break
+
+plt.imshow(new_img)
+# Register the callback function for any key press event
+keyboard.on_press(close_figure)
+plt.show()
+
+
+new_img = np.array(cropped_frame)
+
+for j in range(i - 1, 0, -1):
+    y1, x1 = path[j-1]
+    y2, x2 = path[j]
+    y3, x3 = path[j+1]
+    cv.line(new_img, (x2, y2), (x3, y3), (0, 255, 0), 1)
+
+    # Pixel offset from the origin
+    offset_x = x2
+    offset_y = y2
+
+    # Scale the coordinates from cm to pixels
+    x_px = [(int(-x * scale_x) + offset_x) for x in x_cm]
+    y_px = [(int(-y * scale_y) + offset_y) for y in y_cm]
+
+    x_set = sorted(set(x_px))
+    y_set = sorted(set(y_px))
+
+    # Draw the square on the image
+    points = np.array([(x, y) for x, y in zip(x_px, y_px)], np.int32)
+    points = points.reshape((-1, 1, 2))
+    color = (255, 0, 0)  # Blue color in BGR format
+    thickness = 1
+    cv.polylines(new_img, [points], isClosed=True, color=color, thickness=thickness)
+
+    if (x2 - x1) != (x3 - x2) or (y2 - y1) != (y3 - y2):
+        turning_cord = path[j]
+        break
+
+
+plt.imshow(new_img)
+# Register the callback function for any key press event
+keyboard.on_press(close_figure)
+plt.show()
+
+
 
 new_img = np.array(cropped_frame)
 
@@ -465,8 +563,6 @@ for node_index in range(len(path)-1):
     orientations.append(direction)
 
 print(orientations)
-
-scale_factor = 12
 
 # Replace "/dev/tty.SLAB_USBtoUART" with the Bluetooth serial port of your ESP32
 ser = serial.Serial('COM7', 9600, timeout=2)
