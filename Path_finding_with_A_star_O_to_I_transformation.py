@@ -176,8 +176,7 @@ def virtualBarrier(t):
           if j+t < c and i-t > 0:
             maze_with_barries[i-t, j+t] = 1
   return maze_with_barries
-
-#maze = virtualBarrier(5)
+maze = virtualBarrier(2)
 maze = np.array(maze)
 maze = maze.astype(np.int32)
 np.save("maze.npy", maze)
@@ -191,7 +190,7 @@ image = np.float32(maze) * 255
 print(image.shape)
 
 # Create Gaussian kernel
-kernel_size = (60, 60)  # Adjust the kernel size for desired thickness
+kernel_size = (40, 40)  # Adjust the kernel size for desired thickness
 sigma = 1250  # Adjust the sigma value for the spread of the Gaussian
 gaussian_kernel = cv.getGaussianKernel(kernel_size[0], sigma) @ cv.getGaussianKernel(kernel_size[1], sigma).T
 #box_kernel_img = cv.boxFilter(image, -1, kernel_size)
@@ -208,7 +207,7 @@ plt.imshow(prox_maze)
 keyboard.on_press(close_figure)
 plt.show()
 
-def astar(start, goal, grid, prox_grid):
+def astar(start, goal, grid, prox_grid, shape = 'o'):
     """
     Implements the A* algorithm to find the shortest path from start to goal in a 2D grid.
     :param start: a tuple representing the starting position in the grid
@@ -223,6 +222,25 @@ def astar(start, goal, grid, prox_grid):
     heapq.heappush(pq, (0, start, [start]))
     # initialize the visited set
     visited = set()
+
+
+    if shape == 'o':
+        # Given coordinates in cm
+        x_cm = [8.5, 8.5, -25.5, -25.5, 8.5]
+        y_cm = [8.5, -25.5, -25.5, 8.5, 8.5]
+    else:
+        x_cm = [8.5,8.5,-8.5,-8.5,8.5]
+        y_cm = [25.5,-42.5,-42.5,25.5,25.5]
+
+    # Image and area dimensions
+    image_size = 600
+    area_width_cm = 220
+    area_height_cm = 220
+
+    # Calculate the scaling factor
+    scale_x = image_size / area_width_cm
+    scale_y = image_size / area_height_cm
+
     
     while len(pq) > 0:
         t = 15
@@ -241,19 +259,6 @@ def astar(start, goal, grid, prox_grid):
             if neighbor in visited:
                 continue
             # calculate the g-score and h-score of the neighbor
-
-            # Given coordinates in cm
-            x_cm = [8.5, 8.5, -25.5, -25.5, 8.5]
-            y_cm = [8.5, -25.5, -25.5, 8.5, 8.5]
-
-            # Image and area dimensions
-            image_size = 600
-            area_width_cm = 220
-            area_height_cm = 220
-
-            # Calculate the scaling factor
-            scale_x = image_size / area_width_cm
-            scale_y = image_size / area_height_cm
 
             # Pixel offset from the origin
             offset_x = neighbor[0]
@@ -528,6 +533,88 @@ y_cm = [8.5, -25.5, -25.5, 8.5, 8.5]
 for i in range(len(path2)-1):
     y1, x1 = path2[i]
     y2, x2 = path2[i+1]
+    cv.line(new_img, (x1, y1), (x2, y2), (0, 255, 0), 1)
+
+    # Pixel offset from the origin
+    offset_x = x1
+    offset_y = y1
+
+    # Scale the coordinates from cm to pixels
+    x_px = [(int(-x * scale_x) + offset_x) for x in x_cm]
+    y_px = [(int(y * scale_y) + offset_y) for y in y_cm]
+
+    x_set = sorted(set(x_px))
+    y_set = sorted(set(y_px))
+
+    # Draw the square on the image
+    points = np.array([(x, y) for x, y in zip(x_px, y_px)], np.int32)
+    points = points.reshape((-1, 1, 2))
+    color = (255, 0, 0)  # Blue color in BGR format
+    thickness = 1
+    cv.polylines(new_img, [points], isClosed=True, color=color, thickness=thickness)
+
+
+plt.imshow(new_img)
+# Register the callback function for any key press event
+keyboard.on_press(close_figure)
+plt.show()
+
+
+'''
+new_img = np.array(cropped_frame)
+
+path_arr = np.zeros([r, c])
+for ind in range(len(path) -1):
+    y1, x1 = path[ind]
+    y2, x2 = path[ind+1]
+    cv.line(new_img, (x1, y1), (x2, y2), (0, 255, 0), 1)
+
+    # Given coordinates in cm
+    x_cm = [8.5, 8.5, -25.5, -25.5, 8.5]
+    y_cm = [8.5, -25.5, -25.5, 8.5, 8.5]
+
+    # Image and area dimensions
+    image_size = 600
+    area_width_cm = 220
+    area_height_cm = 220
+
+    # Calculate the scaling factor
+    scale_x = image_size / area_width_cm
+    scale_y = image_size / area_height_cm
+
+    # Pixel offset from the origin
+    offset_x = x1
+    offset_y = y1
+
+    # Scale the coordinates from cm to pixels
+    x_px = [(int(-x * scale_x) + offset_x) for x in x_cm]
+    y_px = [(int(-y * scale_y) + offset_y) for y in y_cm]
+
+    # Draw the square on the image
+    points = np.array([(x, y) for x, y in zip(x_px, y_px)], np.int32)
+    points = points.reshape((-1, 1, 2))
+    color = (255, 0, 0)  # Blue color in BGR format
+    thickness = 1
+    cv.polylines(new_img, [points], isClosed=True, color=color, thickness=thickness)
+
+
+plt.imshow(new_img)
+# Register the callback function for any key press event
+keyboard.on_press(close_figure)
+plt.show()
+'''
+
+new_img = np.array(cropped_frame)
+
+x_cm = [8.5,8.5,-8.5,-8.5,8.5]
+y_cm = [25.5,-42.5,-42.5,25.5,25.5]
+
+
+path_length3, path3 = astar(turning_cord, goal, maze, prox_maze, 'I')
+
+for i in range(len(path3)-1):
+    y1, x1 = path3[i]
+    y2, x2 = path3[i+1]
     cv.line(new_img, (x1, y1), (x2, y2), (0, 255, 0), 1)
 
     # Pixel offset from the origin
