@@ -8,6 +8,16 @@ import serial
 import time
 from cv2 import aruco
 
+def find_minimum(dictionary):
+    min_key = None
+    min_value = float('inf')  # Set initial minimum value to positive infinity
+
+    for key, value in dictionary.items():
+        if value < min_value:
+            min_value = value
+            min_key = key
+
+    return min_key, min_value
 
 def close_figure(event):
     if event.event_type == 'down':
@@ -448,6 +458,7 @@ for i in range(len(path)-1):
 
     if is_obstcle_inside_the_shape_o(x_set[0], x_set[1], y_set[0], y_set[1], maze):
        coll_cord = path[i]
+       print(coll_cord)
        break
 
 plt.imshow(new_img)
@@ -462,9 +473,61 @@ y_cm = [-49.54162915146807, 32.54162915146807, 32.54162915146807, -49.5416291514
 
 new_img = np.array(cropped_frame)
 
-for j in range(i - 1, 0, -1):
-    y1, x1 = path[j]
-    y2, x2 = path[j-1]
+turning_cord_found = False
+
+for j in range(coll_cord[0] + 150, coll_cord[0] - 150, -15):
+    for k in range(coll_cord[1] + 150, coll_cord[1] - 150, -15):
+        if j < 0 or j > 599 or k < 0 or k > 599:
+            continue
+
+        y1, x1 = j, k
+
+        # Pixel offset from the origin
+        offset_x = x1
+        offset_y = y1
+
+        # Scale the coordinates from cm to pixels
+        x_px = [(int(-x * scale_x) + offset_x) for x in x_cm]
+        y_px = [(int(y * scale_y) + offset_y) for y in y_cm]
+
+        x_set = sorted(set(x_px))
+        y_set = sorted(set(y_px))
+
+
+        if not is_obstcle_inside_the_shape_o(x_set[0], x_set[1], y_set[0], y_set[1], maze, 1000):
+            # Draw the square on the image
+            points = np.array([(x, y) for x, y in zip(x_px, y_px)], np.int32)
+            points = points.reshape((-1, 1, 2))
+            color = (255, 0, 0)  # Blue color in BGR format
+            thickness = 1
+            cv.polylines(new_img, [points], isClosed=True, color=color, thickness=thickness)
+            turning_cord = (j, k)
+            turning_cord_found = True
+            print(turning_cord)
+            break
+    if turning_cord_found:
+        break
+
+plt.imshow(new_img)
+# Register the callback function for any key press event
+keyboard.on_press(close_figure)
+plt.show()
+
+    
+dic_last_cord_to_turning_cord = {}
+for back_cord in path[i::-1]:
+    dic_last_cord_to_turning_cord[back_cord] = heuristic(back_cord, turning_cord)
+
+min_key, min_value = find_minimum(dic_last_cord_to_turning_cord)
+
+path_length2, path2 = astar(min_key, turning_cord, maze, prox_maze)
+
+x_cm = [8.5, 8.5, -25.5, -25.5, 8.5]
+y_cm = [8.5, -25.5, -25.5, 8.5, 8.5]
+
+for i in range(len(path2)-1):
+    y1, x1 = path2[i]
+    y2, x2 = path2[i+1]
     cv.line(new_img, (x1, y1), (x2, y2), (0, 255, 0), 1)
 
     # Pixel offset from the origin
@@ -484,10 +547,6 @@ for j in range(i - 1, 0, -1):
     color = (255, 0, 0)  # Blue color in BGR format
     thickness = 1
     cv.polylines(new_img, [points], isClosed=True, color=color, thickness=thickness)
-
-    if not is_obstcle_inside_the_shape_o(x_set[0], x_set[1], y_set[0], y_set[1], maze, 0):
-        turning_cord = path[j]
-        break
 
 
 plt.imshow(new_img)
