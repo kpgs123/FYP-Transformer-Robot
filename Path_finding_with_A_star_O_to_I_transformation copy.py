@@ -333,7 +333,7 @@ def obstcle_inside_the_shape_o(x1, x2, y1, y2, prox_grid):
             count += prox_grid[x, y]
     return count
 
-def is_obstcle_inside_the_shape_o(x1, x2, y1, y2, grid, threshold=2500):
+def is_obstcle_inside_the_shape_o(x1, x2, y1, y2, grid):
     if x2 > 599:
        x2 = 599
     if y2 > 599:
@@ -343,7 +343,7 @@ def is_obstcle_inside_the_shape_o(x1, x2, y1, y2, grid, threshold=2500):
         for x in range(x1, x2 + 1):
             if grid[x, y]:
                 count += 1
-                if count > threshold:
+                if count > 2500:
                     return True
     else:
         return False
@@ -456,24 +456,21 @@ keyboard.on_press(close_figure)
 plt.show()
 
 
-x_cm = [-32.534551351351354, -32.534551351351354, 8.5, 8.5]
-y_cm = [-49.54162915146807, 32.54162915146807, 32.54162915146807, -49.54162915146807]
-
-
 new_img = np.array(cropped_frame)
 
 for j in range(i - 1, 0, -1):
-    y1, x1 = path[j]
-    y2, x2 = path[j-1]
-    cv.line(new_img, (x1, y1), (x2, y2), (0, 255, 0), 1)
+    y1, x1 = path[j-1]
+    y2, x2 = path[j]
+    y3, x3 = path[j+1]
+    cv.line(new_img, (x2, y2), (x3, y3), (0, 255, 0), 1)
 
     # Pixel offset from the origin
-    offset_x = x1
-    offset_y = y1
+    offset_x = x2
+    offset_y = y2
 
     # Scale the coordinates from cm to pixels
     x_px = [(int(-x * scale_x) + offset_x) for x in x_cm]
-    y_px = [(int(y * scale_y) + offset_y) for y in y_cm]
+    y_px = [(int(-y * scale_y) + offset_y) for y in y_cm]
 
     x_set = sorted(set(x_px))
     y_set = sorted(set(y_px))
@@ -485,7 +482,7 @@ for j in range(i - 1, 0, -1):
     thickness = 1
     cv.polylines(new_img, [points], isClosed=True, color=color, thickness=thickness)
 
-    if not is_obstcle_inside_the_shape_o(x_set[0], x_set[1], y_set[0], y_set[1], maze, 0):
+    if (x2 - x1) != (x3 - x2) or (y2 - y1) != (y3 - y2):
         turning_cord = path[j]
         break
 
