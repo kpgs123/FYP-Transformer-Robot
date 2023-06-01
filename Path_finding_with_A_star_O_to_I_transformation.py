@@ -34,6 +34,7 @@ parameters = aruco.DetectorParameters_create()
 
 #url = "G:/sem 7/FYP/New Git/FYP-Transformer-Robot/output.avi"
 url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
+#cap = cv.videoCapture(url)
 path = np.empty((0, 2), float)
 camera_matrix = np.load("D:/Git/FYP-Transformer-Robot/CaliFinal/camera_matrix.npy")
 dist_coeffs = np.load("D:/Git/FYP-Transformer-Robot/CaliFinal/distortion_coeffs.npy")
@@ -368,6 +369,7 @@ goal = (400, 50)'''
 
 
 frame = cv.imread("D:/Git/FYP-Transformer-Robot/imgesOfRobo/image1.jpg")
+#ret, frame = cap.read()
 
 # Undistort the frame
 undistorted_frame = cv.undistort(frame, camera_matrix, dist_coeffs)
