@@ -8,7 +8,7 @@ ser = serial.Serial('COM7', 9600, timeout=1)
 # Define a variable to keep track of the last key press time
 last_key_press_time = time.monotonic()
 
-# Define a callback function to handle key presses
+# Define a callback function to handle key presses8
 def on_key_press(event):
     global last_key_press_time
     elapsed_time = time.monotonic() - last_key_press_time
