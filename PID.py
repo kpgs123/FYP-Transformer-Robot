@@ -34,7 +34,6 @@ class PIDController:
 # Example usage
 # Assuming you have the desired_pixel_coords and current_pixel_coords
 
-
 dict_aruco = aruco.Dictionary_get(aruco.DICT_4X4_50)
 parameters = aruco.DetectorParameters_create()
 #url = "G:/sem 7/FYP/New Git/FYP-Transformer-Robot/output.avi"
