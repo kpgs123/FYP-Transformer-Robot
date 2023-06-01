@@ -526,7 +526,7 @@ min_key, min_value = find_minimum(dic_last_cord_to_turning_cord)
 
 path_length2, path2 = astar(min_key, turning_cord, maze, prox_maze)
 
-final_path['O'].append(path2)
+final_path['O'].extend(path2)
 
 x_cm = [8.5, 8.5, -25.5, -25.5, 8.5]
 y_cm = [8.5, -25.5, -25.5, 8.5, 8.5]
@@ -692,10 +692,10 @@ plt.show()
 
 orientations = []
 
-shape_nodes = final_path['I']
-
+shape_nodes = final_path['O']
+print(shape_nodes)
 for node_index in range(len(shape_nodes)-1):
-    
+    #print(shape_nodes[node_index + 1])
     x2, y2 = shape_nodes[node_index + 1]
     x1, y1 = shape_nodes[node_index]
     if x2 - x1 == 0:
@@ -773,10 +773,11 @@ for node_index in range(len(shape_nodes)-1):
     elif x2 - x1 > 0 and y2 - y1 < 0:
         direction = '9'
         
-orientations.append(direction)
+    orientations.append(direction)
 
+print(orientations)
 
-sendNode('I')
+sendNode('i')
 
 # Keep the program running to allow key presses to be detected
 i = 0
