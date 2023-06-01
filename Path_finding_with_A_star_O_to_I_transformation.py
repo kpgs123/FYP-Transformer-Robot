@@ -35,8 +35,8 @@ parameters = aruco.DetectorParameters_create()
 #url = "G:/sem 7/FYP/New Git/FYP-Transformer-Robot/output.avi"
 url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
 path = np.empty((0, 2), float)
-camera_matrix = np.load("D:/Git/FYP-Transformer-Robot/CaliFinal/camera_matrix.npy")
-dist_coeffs = np.load("D:/Git/FYP-Transformer-Robot/CaliFinal/distortion_coeffs.npy")
+camera_matrix = np.load("/home/geethaka/Documents/Git/FYP-Transformer-Robot/CaliFinal/camera_matrix.npy")
+dist_coeffs = np.load("/home/geethaka/Documents/Git/FYP-Transformer-Robot/CaliFinal/distortion_coeffs.npy")
 
 # Define the region of interest (ROI) to crop
 start_x = 100  # Starting x-coordinate of the ROI
@@ -53,7 +53,7 @@ Threshold_no_marker = 55
 fps_limit = 10  # Desired frame rate
 frame_interval = 1 / fps_limit  # Time interval between frames
 
-frame = cv.imread("D:/Git/FYP-Transformer-Robot/pic/picture1.jpg")
+frame = cv.imread("/home/geethaka/Documents/Git/FYP-Transformer-Robot/pic/picture1.jpg")
 
 # Undistort the frame
 undistorted_frame = cv.undistort(frame, camera_matrix, dist_coeffs)
@@ -418,7 +418,6 @@ print(maze.shape)
 # print the results
 path_length, path = astar(start, goal, maze, prox_maze)
 print(f"Shortest path length: {path_length}")
-print(f"Shortest path: {path}")
 np.save("path.npy", path)
 r,c = maze.shape
 
@@ -463,6 +462,7 @@ for i in range(len(path)-1):
 
     if is_obstcle_inside_the_shape_o(x_set[0], x_set[1], y_set[0], y_set[1], maze):
        coll_cord = path[i]
+       final_path = path[:i]
        print(coll_cord)
        break
 
@@ -526,6 +526,8 @@ for back_cord in path[i::-1]:
 min_key, min_value = find_minimum(dic_last_cord_to_turning_cord)
 
 path_length2, path2 = astar(min_key, turning_cord, maze, prox_maze)
+
+final_path += path2
 
 x_cm = [8.5, 8.5, -25.5, -25.5, 8.5]
 y_cm = [8.5, -25.5, -25.5, 8.5, 8.5]
@@ -612,6 +614,10 @@ y_cm = [25.5,-42.5,-42.5,25.5,25.5]
 
 path_length3, path3 = astar(turning_cord, goal, maze, prox_maze, 'I')
 
+final_path += path3
+
+print(f"Shortest path: {final_path}")
+
 for i in range(len(path3)-1):
     y1, x1 = path3[i]
     y2, x2 = path3[i+1]
@@ -687,7 +693,7 @@ plt.show()
 
 orientations = []
 
-for node_index in range(len(path)-1):
+for node_index in range(len(final_path)-1):
     x2, y2 = path[node_index + 1]
     x1, y1 = path[node_index]
     if x2 - x1 == 0:
