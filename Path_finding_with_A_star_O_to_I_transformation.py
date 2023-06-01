@@ -35,8 +35,8 @@ parameters = aruco.DetectorParameters_create()
 #url = "G:/sem 7/FYP/New Git/FYP-Transformer-Robot/output.avi"
 url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
 path = np.empty((0, 2), float)
-camera_matrix = np.load("/home/geethaka/Documents/Git/FYP-Transformer-Robot/CaliFinal/camera_matrix.npy")
-dist_coeffs = np.load("/home/geethaka/Documents/Git/FYP-Transformer-Robot/CaliFinal/distortion_coeffs.npy")
+camera_matrix = np.load("D:/Git/FYP-Transformer-Robot/CaliFinal/camera_matrix.npy")
+dist_coeffs = np.load("D:/Git/FYP-Transformer-Robot/CaliFinal/distortion_coeffs.npy")
 
 # Define the region of interest (ROI) to crop
 start_x = 100  # Starting x-coordinate of the ROI
@@ -53,7 +53,7 @@ Threshold_no_marker = 55
 fps_limit = 10  # Desired frame rate
 frame_interval = 1 / fps_limit  # Time interval between frames
 
-frame = cv.imread("/home/geethaka/Documents/Git/FYP-Transformer-Robot/pic/picture1.jpg")
+frame = cv.imread("D:/Git/FYP-Transformer-Robot/pic/picture1.jpg")
 
 # Undistort the frame
 undistorted_frame = cv.undistort(frame, camera_matrix, dist_coeffs)
@@ -200,7 +200,6 @@ thicker_image = cv.filter2D(image, -1, gaussian_kernel)
 
 # Normalize thicker image to range 0-1
 prox_maze = thicker_image
-
 
 plt.imshow(prox_maze)
 # Register the callback function for any key press event
@@ -435,7 +434,7 @@ scale_x = image_size / area_width_cm
 scale_y = image_size / area_height_cm
 
 new_img = np.array(cropped_frame)
-
+final_path = {}
 for i in range(len(path)-1):
     y1, x1 = path[i]
     y2, x2 = path[i+1]
@@ -462,7 +461,7 @@ for i in range(len(path)-1):
 
     if is_obstcle_inside_the_shape_o(x_set[0], x_set[1], y_set[0], y_set[1], maze):
        coll_cord = path[i]
-       final_path = path[:i]
+       final_path['O'] = path[:i]
        print(coll_cord)
        break
 
@@ -527,7 +526,7 @@ min_key, min_value = find_minimum(dic_last_cord_to_turning_cord)
 
 path_length2, path2 = astar(min_key, turning_cord, maze, prox_maze)
 
-final_path += path2
+final_path['O'].append(path2)
 
 x_cm = [8.5, 8.5, -25.5, -25.5, 8.5]
 y_cm = [8.5, -25.5, -25.5, 8.5, 8.5]
@@ -614,7 +613,7 @@ y_cm = [25.5,-42.5,-42.5,25.5,25.5]
 
 path_length3, path3 = astar(turning_cord, goal, maze, prox_maze, 'I')
 
-final_path += path3
+final_path['I'] = path3
 
 print(f"Shortest path: {final_path}")
 
@@ -693,9 +692,12 @@ plt.show()
 
 orientations = []
 
-for node_index in range(len(final_path)-1):
-    x2, y2 = path[node_index + 1]
-    x1, y1 = path[node_index]
+shape_nodes = final_path['I']
+
+for node_index in range(len(shape_nodes)-1):
+    
+    x2, y2 = shape_nodes[node_index + 1]
+    x1, y1 = shape_nodes[node_index]
     if x2 - x1 == 0:
         if y2 - y1 > 0:
             direction = '4'
@@ -745,3 +747,45 @@ while i < len(orientations) - 1:
     i += 1
     #print("No path found!")
 
+orientations = []
+
+shape_nodes = final_path['I']
+
+for node_index in range(len(shape_nodes)-1):
+    x2, y2 = shape_nodes[node_index + 1]
+    x1, y1 = shape_nodes[node_index]
+    if x2 - x1 == 0:
+        if y2 - y1 > 0:
+            direction = '4'
+        else:
+            direction = '6'
+    elif y2 - y1 == 0:
+        if x2 - x1 > 0:
+            direction = '8'
+        else:
+            direction = '2'
+    elif x2 - x1 > 0 and y2 - y1 > 0:
+        direction = '7'
+    elif x2 - x1 < 0 and y2 - y1 > 0:
+        direction = '1'
+    elif x2 - x1 < 0 and y2 - y1 < 0:
+        direction = '3'
+    elif x2 - x1 > 0 and y2 - y1 < 0:
+        direction = '9'
+        
+orientations.append(direction)
+
+
+sendNode('I')
+
+# Keep the program running to allow key presses to be detected
+i = 0
+while i < len(orientations) - 1:
+    sendNode(orientations[i])
+    data = ser.readline()
+    s = data.decode()
+    s = s[:-2]
+    if len(s):
+        print(s)
+    i += 1
+    #print("No path found!")
