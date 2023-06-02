@@ -7,12 +7,11 @@ import serial
 
 dict_aruco = aruco.Dictionary_get(aruco.DICT_4X4_50)
 parameters = aruco.DetectorParameters_create()
-url = "E:/sem 7-------------/Final Year Design Project/final/FYP-Transformer-Robot/output.avi"
+url = "G:/sem 7/FYP/New Git/FYP-Transformer-Robot/output.avi"
 #url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
 path = np.empty((0, 2), float)
-camera_matrix = np.load("E:/sem 7-------------/Final Year Design Project/final/FYP-Transformer-Robot/CaliFinal/camera_matrix.npy")
-dist_coeffs = np.load("E:/sem 7-------------/Final Year Design Project/final/FYP-Transformer-Robot/CaliFinal/distortion_coeffs.npy")
-
+camera_matrix = np.load("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/CaliFinal/camera_matrix.npy")
+dist_coeffs = np.load("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/CaliFinal/distortion_coeffs.npy")
 # Define the region of interest (ROI) to crop
 start_x = 70  # Starting x-coordinate of the ROI
 start_y = 5  # Starting y-coordinate of the ROI
