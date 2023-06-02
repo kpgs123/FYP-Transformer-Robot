@@ -12,9 +12,8 @@ def send_command_to_esp32(command):
 i = 0
 while i <= 10:
     i += 1
-    command = '2'
+    command = '4'
     send_command_to_esp32(command)
-    print("sent")
     # Wait for acknowledgment from Arduino
     while ser.readline().decode().rstrip() != 'ACK':
         pass
