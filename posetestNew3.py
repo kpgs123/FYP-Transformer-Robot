@@ -6,11 +6,13 @@ import math
 
 dict_aruco = aruco.Dictionary_get(aruco.DICT_4X4_50)
 parameters = aruco.DetectorParameters_create()
-#url = "G:/sem 7/FYP/New Git/FYP-Transformer-Robot/output.avi"
-url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
+url = "E:/sem 7-------------/Final Year Design Project/final/FYP-Transformer-Robot/output.avi"
+#url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
 path = np.empty((0, 2), float)
-camera_matrix = np.load("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/CaliFinal/camera_matrix.npy")
-dist_coeffs = np.load("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/CaliFinal/distortion_coeffs.npy")
+camera_matrix = np.load("E:/sem 7-------------/Final Year Design Project/final/FYP-Transformer-Robot/CaliFinal/camera_matrix.npy")
+dist_coeffs = np.load("E:/sem 7-------------/Final Year Design Project/final/FYP-Transformer-Robot/CaliFinal/distortion_coeffs.npy")
+
+path = np.empty((0, 2), float)
 
 # Define the region of interest (ROI) to crop
 start_x = 70  # Starting x-coordinate of the ROI
@@ -76,10 +78,11 @@ try:
                 y_axis = np.dot(R, np.array([0, 1, 0]).T)
 
                 centroid = np.mean(corners[0][0], axis=0)
+                print(centroid)
                 cv2.putText(cropped_frame, f"position: {centroid}", (10,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 250, 0), 2)
 
                 path = np.append(path , np.array([centroid]), axis=0)
-
+        
                 frame_markers = aruco.drawDetectedMarkers(cropped_frame.copy(), corners, ids)
                 cv2.imshow('frame', frame_markers)
 
