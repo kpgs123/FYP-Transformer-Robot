@@ -10,7 +10,7 @@ def send_command_to_esp32(command):
         print(response)
 
 i = 0
-while i <= 10:
+while i <= 1:
     i += 1
     command = '4'
     send_command_to_esp32(command)

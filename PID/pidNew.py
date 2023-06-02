@@ -8,11 +8,13 @@ import serial
 dict_aruco = aruco.Dictionary_get(aruco.DICT_4X4_50)
 parameters = aruco.DetectorParameters_create()
 url = "G:/sem 7/FYP/New Git/FYP-Transformer-Robot/output.avi"
-#url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
+url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
 #path = [(350, 150), (360, 150), (370, 150), (380, 150), (390, 150), (400, 150)]
 
 path = [[228, 170], [230, 170], [232, 170], [234, 170], [236, 170], [238, 170], [240, 170], [242, 170], [244, 170], [246, 170], [248, 170], [250, 170], [252, 170], [254, 170], [256, 170], [258, 170], [260, 170], [262, 170], [264, 170], [266, 170], [268, 170], [270, 170], [272, 170], [274, 170], [276, 170], [278, 170], [280, 170], [282, 170], [284, 170], [286, 170], [288, 170], [290, 170], [292, 170], [294, 170], [296, 170], [298, 170], [300, 170], [302, 170], [304, 170], [306, 170], [308, 170], [310, 170], [312, 170], [314, 170], [316, 170], [318, 170], [320, 170], [322, 170], [324, 170], [326, 
 170]]
+
+path = [[221,174], [225,174]]
 orientations = []
 
 # Serial communication with the robot
@@ -130,9 +132,13 @@ while True:
             # Calculate direction based on error between current position and target position
             direction = calculate_direction(centroid, path[0])
 
+    
+
             # Send direction command to the robot
             ser.write(str(direction).encode())
-            time.sleep(0.4)
+            while ser.readline().decode().rstrip() != 'ACK':
+              pass
+            
 
             # Check if the robot has reached the target position
             if centroid[0] == path[0][0] and centroid[1] == path[0][1]:
