@@ -10,7 +10,7 @@ parameters = aruco.DetectorParameters_create()
 url = "G:/sem 7/FYP/New Git/FYP-Transformer-Robot/output.avi"
 url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
 
-path = [[378, 249], [390, 249],[400, 249], [410, 249],[420, 249], [430, 249],[378, 249], [390, 249],[400, 249], [410, 249],[420, 249], [430, 249]]
+path = [[378, 249], [390, 249]]
 orientations = []
 
 # Serial communication with the robot
@@ -22,7 +22,6 @@ ki = 0.2
 integral_sum = 0
 last_error = 0
 
-# Calculate direction based on error between current position and target position
 def calculate_direction(current_pos, target_pos):
     error_x = target_pos[0] - current_pos[0]
     error_y = target_pos[1] - current_pos[1]
@@ -48,6 +47,12 @@ def calculate_direction(current_pos, target_pos):
 
     return direction
 
+def apply_moving_average_filter(value, value_buffer):
+    value_buffer.append(value)
+    if len(value_buffer) > filter_size:
+        value_buffer.pop(0)
+    return np.mean(value_buffer, axis=0)
+
 # Load camera calibration data
 camera_matrix = np.load("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/CaliFinal/camera_matrix.npy")
 dist_coeffs = np.load("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/CaliFinal/distortion_coeffs.npy")
@@ -57,6 +62,7 @@ start_x = 70  # Starting x-coordinate of the ROI
 start_y = 5  # Starting y-coordinate of the ROI
 end_x = 716   # Ending x-coordinate of the ROI
 end_y = 589   # Ending y-coordinate of the ROI
+
 
 # Moving average filter parameters
 filter_size = 5
@@ -77,7 +83,21 @@ fps_limit = 10  # Desired frame rate
 frame_interval = 1 / fps_limit  # Time interval between frames
 
 last_frame_time = time.time()
-i=0
+
+i = 0
+
+# Define the output video file name and properties
+output_file = "out1.mp4"
+output_fps = 25  # Output video frames per second
+
+# Get the first frame to extract its properties
+ret, frame = cap.read()
+height, width, _ = frame.shape
+
+# Define the codec and create the video writer object
+fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+video_writer = cv2.VideoWriter(output_file, fourcc, output_fps, (width, height))
+
 while True:
     ret, frame = cap.read()
 
@@ -141,9 +161,12 @@ while True:
         if np.linalg.norm(centroid - path[i]) < tolerance_margin:
             # Remove the reached target position from the path
             path.pop(i)
-            i+=1
+        i += 1
         frame_markers = aruco.drawDetectedMarkers(cropped_frame.copy(), corners, ids)
         cv2.imshow('frame', frame_markers)
+
+        # Write the processed frame to the output video file
+        video_writer.write(frame_markers)
 
     else:
         no_marker_count += 1
@@ -160,3 +183,6 @@ ser.write(b'0')
 cap.release()
 ser.close()
 cv2.destroyAllWindows()
+
+# Release the video writer and close the output file
+video_writer.release()
