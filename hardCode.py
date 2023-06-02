@@ -1,7 +1,7 @@
 import serial
 import time
 
-ser = serial.Serial('COM7', 9600, timeout=1)
+ser = serial.Serial('COM8', 9600, timeout=1)
 
 def send_command_to_esp32(command):
     # Replace "/dev/tty.SLAB_USBtoUART" with the Bluetooth serial port of your ESP32
@@ -21,5 +21,5 @@ def send_command_to_esp32(command):
 i=0
 while i<=10:
     i+=1
-    command = '8'  # Replace '8' with the desired command
+    command = '4'  # Replace '8' with the desired command
     send_command_to_esp32(command)
