@@ -14,7 +14,7 @@ url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
 path = [[228, 170], [230, 170], [232, 170], [234, 170], [236, 170], [238, 170], [240, 170], [242, 170], [244, 170], [246, 170], [248, 170], [250, 170], [252, 170], [254, 170], [256, 170], [258, 170], [260, 170], [262, 170], [264, 170], [266, 170], [268, 170], [270, 170], [272, 170], [274, 170], [276, 170], [278, 170], [280, 170], [282, 170], [284, 170], [286, 170], [288, 170], [290, 170], [292, 170], [294, 170], [296, 170], [298, 170], [300, 170], [302, 170], [304, 170], [306, 170], [308, 170], [310, 170], [312, 170], [314, 170], [316, 170], [318, 170], [320, 170], [322, 170], [324, 170], [326, 
 170]]
 
-path = [[221,174], [225,174]]
+path = [[378,268], [390,268]]
 orientations = []
 
 # Serial communication with the robot
@@ -91,6 +91,7 @@ while True:
         break
 
     current_time = time.time()
+    elapsed_time = current_time - last_frame_time
     # Undistort the frame
     undistorted_frame = cv2.undistort(frame, camera_matrix, dist_coeffs)
 
@@ -127,6 +128,7 @@ while True:
 
             centroid = np.mean(corners[0][0], axis=0)
             centroid = apply_moving_average_filter(centroid, centroid_buffer)
+            print(centroid)
             cv2.putText(cropped_frame, f"position: {centroid}", (10,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 250, 0), 2)
 
             # Calculate direction based on error between current position and target position
