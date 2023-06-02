@@ -57,6 +57,18 @@ start_y = 5  # Starting y-coordinate of the ROI
 end_x = 716   # Ending x-coordinate of the ROI
 end_y = 589   # Ending y-coordinate of the ROI
 
+# Moving average filter parameters
+filter_size = 5
+centroid_buffer = []
+
+
+
+def apply_moving_average_filter(value, value_buffer):
+    value_buffer.append(value)
+    if len(value_buffer) > filter_size:
+        value_buffer.pop(0)
+    return np.mean(value_buffer, axis=0)
+
 cap = cv2.VideoCapture(url)
 no_marker_count = 0
 Threshold_no_marker = 55
@@ -109,6 +121,7 @@ while True:
             y_axis = np.dot(R, np.array([0, 1, 0]).T)
 
             centroid = np.mean(corners[0][0], axis=0)
+            centroid = apply_moving_average_filter(centroid, centroid_buffer)
             cv2.putText(cropped_frame, f"position: {centroid}", (10,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 250, 0), 2)
 
             # Calculate direction based on error between current position and target position
