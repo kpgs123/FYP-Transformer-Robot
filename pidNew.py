@@ -3,12 +3,51 @@ from cv2 import aruco
 import time
 import numpy as np
 import math
+import serial
 
 dict_aruco = aruco.Dictionary_get(aruco.DICT_4X4_50)
 parameters = aruco.DetectorParameters_create()
 url = "G:/sem 7/FYP/New Git/FYP-Transformer-Robot/output.avi"
 #url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
-path = np.empty((0, 2), float)
+path = [(350, 150), (360, 150), (370, 150), (380, 150), (390, 150), (400, 150)]
+orientations = []
+
+# Serial communication with the robot
+ser = serial.Serial('COM8', 9600, timeout=1)
+
+# PI controller parameters
+kp = 0.5
+ki = 0.2
+integral_sum = 0
+last_error = 0
+
+# Calculate direction based on error between current position and target position
+def calculate_direction(current_pos, target_pos):
+    error_x = target_pos[0] - current_pos[0]
+    error_y = target_pos[1] - current_pos[1]
+
+    # PI controller
+    global integral_sum, last_error
+    integral_sum += (error_x + error_y)
+    delta_error = (error_x + error_y) - last_error
+    last_error = error_x + error_y
+
+    control_signal = kp * (error_x + error_y) + ki * integral_sum + delta_error
+
+    if control_signal >= 0:
+        if error_x > 0:
+            direction = '8'
+        else:
+            direction = '2'
+    else:
+        if error_y > 0:
+            direction = '4'
+        else:
+            direction = '6'
+
+    return direction
+
+# Load camera calibration data
 camera_matrix = np.load("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/CaliFinal/camera_matrix.npy")
 dist_coeffs = np.load("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/CaliFinal/distortion_coeffs.npy")
 
@@ -18,18 +57,12 @@ start_y = 5  # Starting y-coordinate of the ROI
 end_x = 716   # Ending x-coordinate of the ROI
 end_y = 589   # Ending y-coordinate of the ROI
 
-
-
 cap = cv2.VideoCapture(url)
 no_marker_count = 0
 Threshold_no_marker = 55
 
 fps_limit = 10  # Desired frame rate
 frame_interval = 1 / fps_limit  # Time interval between frames
-
-
-
-
 
 last_frame_time = time.time()
 
@@ -46,9 +79,6 @@ while True:
 
     # Crop the undistorted frame
     cropped_frame = undistorted_frame[start_y:end_y, start_x:end_x]
-
-
-
 
     # Check if the frame should be processed based on the frame interval
     if current_time - last_frame_time >= frame_interval:
@@ -81,7 +111,16 @@ while True:
             centroid = np.mean(corners[0][0], axis=0)
             cv2.putText(cropped_frame, f"position: {centroid}", (10,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 250, 0), 2)
 
-            path = np.append(path , np.array([centroid]), axis=0)
+            # Calculate direction based on error between current position and target position
+            direction = calculate_direction(centroid, path[0])
+
+            # Send direction command to the robot
+            ser.write(str(direction).encode())
+            time.sleep(0.4)
+
+            # Check if the robot has reached the target position
+            if centroid[0] == path[0][0] and centroid[1] == path[0][1]:
+                path.pop(0)  # Remove the reached target position from the path
 
             frame_markers = aruco.drawDetectedMarkers(cropped_frame.copy(), corners, ids)
             cv2.imshow('frame', frame_markers)
@@ -89,7 +128,7 @@ while True:
         else:
             no_marker_count += 1
             if no_marker_count >= Threshold_no_marker:
-                print("Cannot find aruco marker for", Threshold_no_marker, "consecutive frames.")
+                print("Cannot find ArUco marker for", Threshold_no_marker, "consecutive frames.")
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
@@ -98,4 +137,5 @@ if cv2.getWindowProperty('frame', cv2.WND_PROP_VISIBLE) != 0:
     cv2.destroyWindow('frame')
 
 cap.release()
+ser.close()
 print(path)
