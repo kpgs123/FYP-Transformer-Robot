@@ -7,7 +7,7 @@ import math
 dict_aruco = aruco.Dictionary_get(aruco.DICT_4X4_50)
 parameters = aruco.DetectorParameters_create()
 url = "G:/sem 7/FYP/New Git/FYP-Transformer-Robot/output.avi"
-#url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
+url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
 path = np.empty((0, 2), float)
 camera_matrix = np.load("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/CaliFinal/camera_matrix.npy")
 dist_coeffs = np.load("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/CaliFinal/distortion_coeffs.npy")
