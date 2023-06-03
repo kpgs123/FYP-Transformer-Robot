@@ -3,6 +3,7 @@ from cv2 import aruco
 import time
 import numpy as np
 import math
+import queue, threading
 
 dict_aruco = aruco.Dictionary_get(aruco.DICT_4X4_50)
 parameters = aruco.DetectorParameters_create()
@@ -30,8 +31,34 @@ def apply_moving_average_filter(value, value_buffer):
         value_buffer.pop(0)
     return np.mean(value_buffer, axis=0)
 
+# bufferless VideoCapture
+class VideoCapture:
 
-cap = cv2.VideoCapture(url)
+  def __init__(self, name):
+    self.cap = cv2.VideoCapture(name)
+    self.q = queue.Queue()
+    t = threading.Thread(target=self._reader)
+    t.daemon = True
+    t.start()
+
+  # read frames as soon as they are available, keeping only most recent one
+  def _reader(self):
+    while True:
+      ret, frame = self.cap.read()
+      if not ret:
+        break
+      if not self.q.empty():
+        try:
+          self.q.get_nowait()   # discard previous (unprocessed) frame
+        except queue.Empty:
+          pass
+      self.q.put(frame)
+
+  def read(self):
+    return self.q.get()
+
+
+cap = VideoCapture(0)
 no_marker_count = 0
 Threshold_no_marker = 55
 
@@ -42,11 +69,9 @@ try:
     last_frame_time = time.time()
 
     while True:
-        ret, frame = cap.read()
+        frame = cap.read()
 
-        # No more frames in video, break out of loop
-        if not ret:
-            break
+
 
         current_time = time.time()
         # Undistort the frame
