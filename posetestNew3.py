@@ -20,11 +20,11 @@ end_y = 589   # Ending y-coordinate of the ROI
 
 
 
-cap = cv2.VideoCapture(url)
+cap = cv2.VideoCapture(0)
 no_marker_count = 0
 Threshold_no_marker = 55
 
-fps_limit = 10  # Desired frame rate
+fps_limit = 15  # Desired frame rate
 frame_interval = 1 / fps_limit  # Time interval between frames
 
 try:
@@ -82,12 +82,12 @@ try:
 
                 frame_markers = aruco.drawDetectedMarkers(cropped_frame.copy(), corners, ids)
                 cv2.imshow('frame', frame_markers)
-
+                
             else:
                 no_marker_count += 1
                 if no_marker_count >= Threshold_no_marker:
                     print("Cannot find aruco marker for", Threshold_no_marker, "consecutive frames.")
-
+        time.sleep(.5)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
