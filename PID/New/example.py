@@ -150,7 +150,8 @@ while True:
 
         if len(path) > 0:
                 x, y = path[0]  # Get the next target coordinates from the path
-                move_robot_to_coordinates(x, y)
+                while True:
+                    move_robot_to_coordinates(x, y)
                 path.pop(0)  # Remove the visited target from the path
 
     if cv2.waitKey(1) & 0xFF == ord('q') or len(path) == 0:

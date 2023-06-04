@@ -26,9 +26,11 @@ class VideoCapture:
   def read(self):
     return self.q.get()
 
-cap = VideoCapture(0)
+url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
+
+cap = VideoCapture(url)
 while True:
-  time.sleep(1)   # simulate time between events
+  time.sleep(.5)   # simulate time between events
   frame = cap.read()
   cv2.imshow("frame", frame)
   if chr(cv2.waitKey(1)&255) == 'q':
