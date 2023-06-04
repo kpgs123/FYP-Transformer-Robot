@@ -13,14 +13,14 @@ camera_matrix = np.load("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/CaliFinal/ca
 dist_coeffs = np.load("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/CaliFinal/distortion_coeffs.npy")
 
 # Define the region of interest (ROI) to crop
-start_x = 70  # Starting x-coordinate of the ROI
-start_y = 5  # Starting y-coordinate of the ROI
-end_x = 716   # Ending x-coordinate of the ROI
-end_y = 589   # Ending y-coordinate of the ROI
+start_x = 100  # Starting x-coordinate of the ROI
+start_y = 0  # Starting y-coordinate of the ROI
+end_x = 700   # Ending x-coordinate of the ROI
+end_y = 600   # Ending y-coordinate of the ROI
 
 
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(url)
 no_marker_count = 0
 Threshold_no_marker = 55
 
@@ -36,7 +36,7 @@ try:
         # No more frames in video, break out of loop
         if not ret:
             break
-
+        frame = cv2.rotate(frame, cv2.ROTATE_180)
         current_time = time.time()
         # Undistort the frame
         undistorted_frame = cv2.undistort(frame, camera_matrix, dist_coeffs)
@@ -87,7 +87,7 @@ try:
                 no_marker_count += 1
                 if no_marker_count >= Threshold_no_marker:
                     print("Cannot find aruco marker for", Threshold_no_marker, "consecutive frames.")
-        time.sleep(.5)
+        
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 

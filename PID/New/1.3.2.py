@@ -10,7 +10,7 @@ import queue, threading
 ser = serial.Serial('COM8', 9600, timeout=1)
 
 # Tolerance for reaching a position
-tolerance = 10  # Adjust the tolerance as per your requirements
+tolerance = 5  # Adjust the tolerance as per your requirements
 
 # ArUco dictionary and parameters
 dict_aruco = aruco.Dictionary_get(aruco.DICT_4X4_50)
@@ -123,7 +123,7 @@ def move_robot_to_coordinates(x, y):
         send_command_to_esp32(command)  # Send the vertical movement command
 
 url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
-url = "G:/sem 7/FYP/New Git/FYP-Transformer-Robot/output.avi"
+#url = "G:/sem 7/FYP/New Git/FYP-Transformer-Robot/output.avi"
 # Video capture
 #cap = cv2.VideoCapture(url)
 cap = VideoCapture(url)

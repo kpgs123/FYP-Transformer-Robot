@@ -13,12 +13,12 @@ def capture_frame_from_video(video_source):
     # Return the captured frame
     return frame
 
-for i in range(15):
-    captured_frame = capture_frame_from_video(0)
 
-    # Display the captured frame
-    cv2.imshow('Frame', captured_frame)
-    cv2.waitKey(0)
+captured_frame = capture_frame_from_video(0)
+
+# Display the captured frame
+cv2.imshow('Frame', captured_frame)
+cv2.waitKey(0)
 
 # Release OpenCV window
 cv2.destroyAllWindows()

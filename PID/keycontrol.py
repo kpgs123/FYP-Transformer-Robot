@@ -3,7 +3,7 @@ import serial
 import time
 
 # Replace "/dev/tty.SLAB_USBtoUART" with the Bluetooth serial port of your ESP32
-ser = serial.Serial('COM8', 9600, timeout=1)
+ser = serial.Serial('COM4', 9600, timeout=1)
 
 # Define a variable to keep track of the last key press time
 last_key_press_time = time.monotonic()

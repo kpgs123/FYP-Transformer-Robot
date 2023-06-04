@@ -36,9 +36,9 @@ parameters = aruco.DetectorParameters_create()
 url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
 #cap = cv.videoCapture(url)
 path = np.empty((0, 2), float)
-camera_matrix = np.load("D:/Git/FYP-Transformer-Robot/CaliFinal/camera_matrix.npy")
-dist_coeffs = np.load("D:/Git/FYP-Transformer-Robot/CaliFinal/distortion_coeffs.npy")
 
+camera_matrix = np.load("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/CaliFinal/camera_matrix.npy")
+dist_coeffs = np.load("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/CaliFinal/distortion_coeffs.npy")
 # Define the region of interest (ROI) to crop
 start_x = 100  # Starting x-coordinate of the ROI
 start_y = 0  # Starting y-coordinate of the ROI
@@ -54,7 +54,7 @@ Threshold_no_marker = 55
 fps_limit = 10  # Desired frame rate
 frame_interval = 1 / fps_limit  # Time interval between frames
 
-frame = cv.imread("D:/Git/FYP-Transformer-Robot/pic/picture1.jpg")
+frame = cv.imread("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/pic/picture1.jpg")
 
 # Undistort the frame
 undistorted_frame = cv.undistort(frame, camera_matrix, dist_coeffs)
@@ -368,7 +368,7 @@ def is_obstcle_inside_the_shape_o(x1, x2, y1, y2, grid, threshold=2500):
 goal = (400, 50)'''
 
 
-frame = cv.imread("D:/Git/FYP-Transformer-Robot/imgesOfRobo/image1.jpg")
+frame = cv.imread("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/imgesOfRobo/image1.jpg")
 #ret, frame = cap.read()
 
 # Undistort the frame
@@ -724,7 +724,7 @@ for node_index in range(len(shape_nodes)-1):
 print(orientations)
 
 # Replace "/dev/tty.SLAB_USBtoUART" with the Bluetooth serial port of your ESP32
-ser = serial.Serial('COM7', 9600, timeout=2)
+ser = serial.Serial('COM6', 9600, timeout=2)
 
 # Define a callback function to handle key presses
 def sendNode(oreintation):

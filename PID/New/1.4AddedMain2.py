@@ -12,7 +12,7 @@ import queue, threading
 (180, 105), (165, 105), (150, 105), (135, 105), (120, 90)]}'''
 
 # Serial communication with the robot
-ser = serial.Serial('COM6', 9600, timeout=1)
+ser = serial.Serial('COM4', 9600, timeout=1)
 
 # Tolerance for reaching a position
 tolerance = 10  # Adjust the tolerance as per your requirements
@@ -51,42 +51,36 @@ centroid_buffer = []  # Global variable for storing centroid positions
 
 correct_orientation = False
 
-# bufferless VideoCapture
+
 class VideoCapture:
-  
-  def __init__(self, name):
-    self.cap = cv2.VideoCapture(name)
-    self.q = queue.Queue()
-    t = threading.Thread(target=self._reader)
-    t.daemon = True
-    t.start()
+    def __init__(self, name):
+        self.cap = cv2.VideoCapture(name)
+        self.q = queue.Queue()
+        t = threading.Thread(target=self._reader)
+        t.daemon = True
+        t.start()
 
-  # read frames as soon as they are available, keeping only most recent one
-  def _reader(self):
-    while True:
-      ret, frame = self.cap.read()
-      if not ret:
-        break
-      if not self.q.empty():
-        try:
-          self.q.get_nowait()   # discard previous (unprocessed) frame
-        except queue.Empty:
-          pass
-      self.q.put(frame)
+    def _reader(self):
+        while True:
+            ret, frame = self.cap.read()
+            if not ret:
+                break
+            if not self.q.empty():
+                try:
+                    self.q.get_nowait()  # discard previous (unprocessed) frame
+                except queue.Empty:
+                    pass
+            self.q.put((ret, frame))
 
-  def read(self):
-    return self.q.get()
-
-
-
+    def read(self):
+        ret, frame = self.q.get()
+        return ret, frame
 
 def keep_robot_fixed_orientation(z_rot):
-    target_angle = 0  # Desired target angle
-
     # Check if the current rotation angle is within the desired range
-    if z_rot > 170:
+    if (z_rot < 173) and (z_rot>=0):
         command = 'c'  # Rotate clockwise
-    elif z_rot > -170:
+    elif (z_rot > -173) and (z_rot<0):
         command = 'a'  # Rotate anticlockwise
     else:
         command = ''  # Stay in the same orientation
@@ -95,7 +89,7 @@ def keep_robot_fixed_orientation(z_rot):
         send_command_to_esp32(command)  # Send the vertical movement command
     # Return True if the robot is in the correct orientation, False otherwise
     while True:
-        frame = cap.read()
+        ret, frame = cap.read()
         frame = cv2.rotate(frame, cv2.ROTATE_180)
         undistorted_frame = cv2.undistort(frame, camera_matrix, dist_coeffs)
         cropped_frame = undistorted_frame[start_y:end_y, start_x:end_x]
@@ -108,9 +102,14 @@ def keep_robot_fixed_orientation(z_rot):
             rvec = np.array(rvec).reshape((3,))
             R, _ = cv2.Rodrigues(rvec)
             z_rot = round(math.degrees(math.atan2(R[1, 0], R[0, 0])), 2)
+            if z_rot<0:
+                z_rot=z_rot+180
+            else:
+                z_rot= z_rot-180
         if ret:
             break
-    return z_rot <= 10 or z_rot <=-170 
+    
+    return z_rot >= 173 or z_rot <= -173 
 
 # Function to send movement command to the robot
 def send_command_to_esp32(command):
@@ -129,6 +128,8 @@ def pi_controller(target, current, kp=0.1, ki=0.01):
     control = kp * error + ki * integral
     return control
 
+x_flag= False
+y_flag=False
 
 def move_robot_to_coordinates(x, y):
     global centroid_buffer  # Declare centroid_buffer as a global variable
@@ -152,36 +153,36 @@ def move_robot_to_coordinates(x, y):
         command = '3'  # Backward Right'''
     # Move horizontally
     if dx < -tolerance:
-        command = '4'  # Left
+        command = '6'  # Left
     elif dx > tolerance:
-        command = '6'  # Right
+        command = '4'  # Right
     else:
         command = ''  # Stay in the same position horizontally
-
+        global x_flag
+        x_flag = True
     if command:
         send_command_to_esp32(command)  # Send the vertical movement command
 
     # Move vertically
     if dy < -tolerance:
-        command = '8'  # Forward
+        command = '2'  # Forward
     elif dy > tolerance:
-        command = '2'  # Backward
+        command = '8'  # Backward
     else:
         command = ''  # Stay in the same position vertically
-
+        global y_flag
+        y_flag = True
     if command:
         send_command_to_esp32(command)  # Send the vertical movement command
 
 url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
-
-#cap = cv2.VideoCapture(url)
 cap = VideoCapture(url)
+
 while True:
-    frame = cap.read()
+    ret, frame = cap.read()
     frame = cv2.rotate(frame, cv2.ROTATE_180)
     undistorted_frame = cv2.undistort(frame, camera_matrix, dist_coeffs)
     cropped_frame = undistorted_frame[start_y:end_y, start_x:end_x]
-
     gray = cv2.cvtColor(cropped_frame, cv2.COLOR_RGB2GRAY)
     corners, ids, rejectedImgPoints = aruco.detectMarkers(gray, dict_aruco, parameters=parameters)
 
@@ -190,7 +191,10 @@ while True:
         rvec = np.array(rvec).reshape((3,))
         R, _ = cv2.Rodrigues(rvec)
         z_rot = round(math.degrees(math.atan2(R[1, 0], R[0, 0])), 2)
-
+        if z_rot<0:
+            z_rot=z_rot+180
+        else:
+            z_rot= z_rot-180
         centroid = np.mean(corners[0][0], axis=0)
         centroid_buffer.append(centroid)
         if len(centroid_buffer) > filter_size:
@@ -199,8 +203,7 @@ while True:
 
         if len(pathO) > 0:
                 x, y = pathO[0]  # Get the next target coordinates from the path
-                move_robot_to_coordinates(x, y)
-                        # Keep moving the robot until it reaches the desired position and orientation
+
                 while not correct_orientation:
                     if not correct_orientation:
                         correct_orientation = keep_robot_fixed_orientation(z_rot)
@@ -208,8 +211,17 @@ while True:
                     # Update the current robot position and rotation
                     robot_x, robot_y = centroid_buffer[-1]
                     z_rot = round(math.degrees(math.atan2(R[1, 0], R[0, 0])), 2)
-
-                pathO.pop(0)  # Remove the visited target from the path
+                    if z_rot<0:
+                        z_rot=z_rot+180
+                    else:
+                        z_rot= z_rot-180  
+                   
+                move_robot_to_coordinates(x, y)
+                        # Keep moving the robot until it reaches the desired position and orientation
+                if x_flag == True and y_flag==True: 
+                    pathO.pop(0)  # Remove the visited target from the path
+                    x_flag=False
+                    y_flag=False
 
     if cv2.waitKey(1) & 0xFF == ord('q') or len(pathO) == 0:
         break

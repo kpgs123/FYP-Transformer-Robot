@@ -23,7 +23,7 @@ def preview_video(video_path):
         cv2.imshow('Video Preview', frame)
 
         # Wait for 1 second (1000 milliseconds)
-        #time.sleep(.5)
+        time.sleep(.5)
 
         # Check if the 'q' key was pressed to stop the preview
         if cv2.waitKey(1) & 0xFF == ord('q'):

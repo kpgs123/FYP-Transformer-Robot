@@ -79,10 +79,10 @@ def move_robot_to_coordinates(x, y):
 url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
 url = "G:/sem 7/FYP/New Git/FYP-Transformer-Robot/output.avi"
 # Video capture
-#cap = cv2.VideoCapture(url)
+cap = cv2.VideoCapture(url)
 
 while True:
-    cap = cv2.VideoCapture(url)
+    
     ret, frame = cap.read()
     if not ret:
         break

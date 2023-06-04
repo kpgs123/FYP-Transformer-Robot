@@ -100,19 +100,19 @@ def move_robot_to_coordinates(x, y):
     else:
         command = ''  # Stay in the same position vertically
 
-    send_command_to_esp32(command)  # Send the vertical movement command
+    if command:
+        send_command_to_esp32(command) #Send the vertical movement command
 
+    
 url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
-url = "G:/sem 7/FYP/New Git/FYP-Transformer-Robot/output.avi"
+#url = "G:/sem 7/FYP/New Git/FYP-Transformer-Robot/output.avi"
 # Video capture
 #cap = cv2.VideoCapture(url)
-cap = VideoCapture(0)
+cap = VideoCapture(url)
+i=0
 while True:
     
-    ret, frame = cap.read()
-    if not ret:
-        break
-
+    frame = cap.read()
     undistorted_frame = cv2.undistort(frame, camera_matrix, dist_coeffs)
     cropped_frame = undistorted_frame[start_y:end_y, start_x:end_x]
 
@@ -130,11 +130,37 @@ while True:
         if len(centroid_buffer) > filter_size:
             centroid_buffer.pop(0)
         print(centroid_buffer[-1])
+        robot_x, robot_y = centroid_buffer[-1]
 
         if len(path) > 0:
-                x, y = path[0]  # Get the next target coordinates from the path
-                move_robot_to_coordinates(x, y)
-                path.pop(0)  # Remove the visited target from the path
+                x, y = path[i]  # Get the next target coordinates from the path
+                while True:                        
+                    move_robot_to_coordinates(x, y)
+                    print("path",path[i])
+                    print("current position", robot_x,robot_y)
+                    frame = cap.read()
+                    undistorted_frame = cv2.undistort(frame, camera_matrix, dist_coeffs)
+                    cropped_frame = undistorted_frame[start_y:end_y, start_x:end_x]
+
+                    gray = cv2.cvtColor(cropped_frame, cv2.COLOR_RGB2GRAY)
+                    corners, ids, rejectedImgPoints = aruco.detectMarkers(gray, dict_aruco, parameters=parameters)
+
+                    if len(corners) > 0:
+                        rvec, _, _ = aruco.estimatePoseSingleMarkers(corners, 0.015, camera_matrix, dist_coeffs)
+                        rvec = np.array(rvec).reshape((3,))
+                        R, _ = cv2.Rodrigues(rvec)
+                        z_rot = round(math.degrees(math.atan2(R[1, 0], R[0, 0])), 2)
+
+                        centroid = np.mean(corners[0][0], axis=0)
+                        centroid_buffer.append(centroid)
+                        if len(centroid_buffer) > filter_size:
+                            centroid_buffer.pop(0)
+                        robot_x, robot_y = centroid_buffer[-1]
+                    # Check if the robot has reached the desired coordinates with a certain tolerance
+                    if abs(robot_x - x) < tolerance and abs(robot_y - y) < tolerance:
+                        i+=1
+                        break  # Exit the inner while loop if desired coordinates are reached
+                path.pop(i)  # Remove the visited target from the path
 
     if cv2.waitKey(1) & 0xFF == ord('q') or len(path) == 0:
         break
@@ -142,4 +168,4 @@ while True:
 if cv2.getWindowProperty('frame', cv2.WND_PROP_VISIBLE) != 0:
     cv2.destroyWindow('frame')
 
-cap.release()
+
