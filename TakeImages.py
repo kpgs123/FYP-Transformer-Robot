@@ -2,7 +2,7 @@ import cv2
 import os
 
 # Create a folder to save the captured pictures
-folder_name = "pic5"
+folder_name = "pic6"
 os.makedirs(folder_name, exist_ok=True)
 
 url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
