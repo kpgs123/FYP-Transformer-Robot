@@ -47,7 +47,8 @@ pathM = {
 pathO1 = pathM['O']
 pathO = [(y, x) for x, y in pathO1]
 #pathO = pathM['O']
-pathI = pathM['I']
+pathI1 = pathM['I']
+pathI = [(y, x) for x, y in pathI1]
 
 centroid_buffer = []  # Global variable for storing centroid positions
 
@@ -101,6 +102,8 @@ def keep_robot_fixed_orientation(z_rot):
 
         if len(corners) > 0:
             rvec, _, _ = aruco.estimatePoseSingleMarkers(corners, 0.015, camera_matrix, dist_coeffs)
+            if rvec.size != 3:
+                continue
             rvec = np.array(rvec).reshape((3,))
             R, _ = cv2.Rodrigues(rvec)
             z_rot = round(math.degrees(math.atan2(R[1, 0], R[0, 0])), 2)
@@ -145,7 +148,7 @@ def move_robot_to_coordinates(x, y):
     dy = y - robot_y
 
     # Move diagonally
-    if dx < -tolerance and dy < -tolerance:
+    '''if dx < -tolerance and dy < -tolerance:
         command = '7'  # Forward Left
     elif dx > tolerance and dy < -tolerance:
         command = '9'  # Forward Right
@@ -176,6 +179,8 @@ def move_robot_to_coordinates(x, y):
 
         if len(corners) > 0:
             rvec, _, _ = aruco.estimatePoseSingleMarkers(corners, 0.015, camera_matrix, dist_coeffs)
+            if rvec.size != 3:
+                continue
             rvec = np.array(rvec).reshape((3,))
             R, _ = cv2.Rodrigues(rvec)
             centroid = np.mean(corners[0][0], axis=0)
@@ -210,6 +215,8 @@ while True:
 
     if len(corners) > 0:
         rvec, _, _ = aruco.estimatePoseSingleMarkers(corners, 0.015, camera_matrix, dist_coeffs)
+        if rvec.size != 3:
+            continue
         rvec = np.array(rvec).reshape((3,))
         R, _ = cv2.Rodrigues(rvec)
         z_rot = round(math.degrees(math.atan2(R[1, 0], R[0, 0])), 2)
@@ -247,6 +254,75 @@ while True:
 
     if cv2.waitKey(1) & 0xFF == ord('q') or len(pathO) == 0:
         break
+
+
+#########################################
+send_command_to_esp32('i')
+x_flag= False
+y_flag=False
+centroid_buffer = []  # Global variable for storing centroid positions
+correct_orientation = False
+
+while True:
+    ret, frame = cap.read()
+    frame = cv2.rotate(frame, cv2.ROTATE_180)
+    undistorted_frame = cv2.undistort(frame, camera_matrix, dist_coeffs)
+    cropped_frame = undistorted_frame[start_y:end_y, start_x:end_x]
+    gray = cv2.cvtColor(cropped_frame, cv2.COLOR_RGB2GRAY)
+    corners, ids, rejectedImgPoints = aruco.detectMarkers(gray, dict_aruco, parameters=parameters)
+
+    if len(corners) > 0:
+        rvec, _, _ = aruco.estimatePoseSingleMarkers(corners, 0.015, camera_matrix, dist_coeffs)
+        rvec = np.array(rvec).reshape((3,))
+        R, _ = cv2.Rodrigues(rvec)
+        z_rot = round(math.degrees(math.atan2(R[1, 0], R[0, 0])), 2)
+        if z_rot<0:
+            z_rot=z_rot+180
+        else:
+            z_rot= z_rot-180
+        centroid = np.mean(corners[0][0], axis=0)
+        centroid_buffer.append(centroid)
+        if len(centroid_buffer) > filter_size:
+            centroid_buffer.pop(0)
+        print(centroid_buffer[-1])
+
+        if len(pathI) > 0:
+                x, y = pathI[0]  # Get the next target coordinates from the path
+
+                while not correct_orientation:
+                    correct_orientation = keep_robot_fixed_orientation(z_rot)
+
+                    # Update the current robot position and rotation
+                    robot_x, robot_y = centroid_buffer[-1]
+                    z_rot = round(math.degrees(math.atan2(R[1, 0], R[0, 0])), 2)
+                    if z_rot<0:
+                        z_rot=z_rot+180
+                    else:
+                        z_rot= z_rot-180  
+                   
+                move_robot_to_coordinates(x, y)
+                        # Keep moving the robot until it reaches the desired position and orientation
+                if x_flag == True and y_flag==True: 
+                    pathI.pop(0)  # Remove the visited target from the path
+                    x_flag=False
+                    y_flag=False
+
+    if cv2.waitKey(1) & 0xFF == ord('q') or len(pathI) == 0:
+        break
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 if cv2.getWindowProperty('frame', cv2.WND_PROP_VISIBLE) != 0:
     cv2.destroyWindow('frame')

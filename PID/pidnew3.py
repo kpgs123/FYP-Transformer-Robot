@@ -8,7 +8,7 @@ import serial
 dict_aruco = aruco.Dictionary_get(aruco.DICT_4X4_50)
 parameters = aruco.DetectorParameters_create()
 url = "G:/sem 7/FYP/New Git/FYP-Transformer-Robot/output.avi"
-url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
+#url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
 
 path = [[378, 249], [390, 249]]
 orientations = []
