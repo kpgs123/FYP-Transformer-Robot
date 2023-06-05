@@ -36,9 +36,9 @@ parameters = aruco.DetectorParameters_create()
 url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
 #cap = cv.videoCapture(url)
 path = np.empty((0, 2), float)
+camera_matrix = np.load("D:/Git/FYP-Transformer-Robot/CaliFinal/camera_matrix.npy")
+dist_coeffs = np.load("D:/Git/FYP-Transformer-Robot/CaliFinal/distortion_coeffs.npy")
 
-camera_matrix = np.load("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/CaliFinal/camera_matrix.npy")
-dist_coeffs = np.load("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/CaliFinal/distortion_coeffs.npy")
 # Define the region of interest (ROI) to crop
 start_x = 100  # Starting x-coordinate of the ROI
 start_y = 0  # Starting y-coordinate of the ROI
@@ -54,7 +54,7 @@ Threshold_no_marker = 55
 fps_limit = 10  # Desired frame rate
 frame_interval = 1 / fps_limit  # Time interval between frames
 
-frame = cv.imread("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/pic/picture1.jpg")
+frame = cv.imread("D:/Git/FYP-Transformer-Robot/pic/picture1.jpg")
 
 # Undistort the frame
 undistorted_frame = cv.undistort(frame, camera_matrix, dist_coeffs)
@@ -272,10 +272,11 @@ def astar(start, goal, grid, prox_grid, shape = 'o'):
             y_set = sorted(set(y_px))
 
             cost_for_collision = obstcle_inside_the_shape_o(x_set[0], x_set[1], y_set[0], y_set[1], prox_grid)
+            collision = is_obstcle_inside_the_shape_o(x_set[0], x_set[1], y_set[0], y_set[1], grid)
 
             cond = (abs(pos[0] - neighbor[0])) and abs(pos[1] - neighbor[1])
             if brown_mask_bool[pos[0], pos[1]] == 0:
-                g = cost_for_collision / 255 + 100
+                g = cost_for_collision / 255 + 115
             else:
                 g = cost_for_collision / 255
             if not cond:
@@ -368,7 +369,7 @@ def is_obstcle_inside_the_shape_o(x1, x2, y1, y2, grid, threshold=2500):
 goal = (400, 50)'''
 
 
-frame = cv.imread("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/imgesOfRobo/image1.jpg")
+frame = cv.imread("D:/Git/FYP-Transformer-Robot/imgesOfRobo/image1.jpg")
 #ret, frame = cap.read()
 
 # Undistort the frame
@@ -411,7 +412,7 @@ if len(corners) > 0:
     start = tuple(map(nearest_pix_cord, map(int, centroid)))
     print(start)
 
-goal = (120,90) # must provide integer multiplication of t
+goal = (90, 210) # must provide integer multiplication of t
 
 # find the shortest path from start to goal using the A* algorithm
 print(maze.shape)
@@ -724,23 +725,20 @@ for node_index in range(len(shape_nodes)-1):
 print(orientations)
 
 # Replace "/dev/tty.SLAB_USBtoUART" with the Bluetooth serial port of your ESP32
-#ser = serial.Serial('COM6', 9600, timeout=1)
+ser = serial.Serial('COM7', 9600, timeout=2)
 
 # Define a callback function to handle key presses
-'''
 def sendNode(oreintation):
     #t1 = time.time()
     #t2 = time.time()
     ser.write(str(oreintation).encode())
     time.sleep(0.4)
-    #t2 = time.time()'''
+    #t2 = time.time()
 
 '''for i in orientations:
 sendNode(i)'''
 
 # Keep the program running to allow key presses to be detected
-
-'''
 i = 0
 while i < len(orientations) - 1:
     sendNode(orientations[i])
@@ -750,7 +748,7 @@ while i < len(orientations) - 1:
     if len(s):
         print(s)
     i += 1
-    #print("No path found!")'''
+    #print("No path found!")
 
 orientations = []
 
@@ -782,10 +780,9 @@ for node_index in range(len(shape_nodes)-1):
 
 print(orientations)
 
-#sendNode('i')
+sendNode('i')
 
 # Keep the program running to allow key presses to be detected
-'''
 i = 0
 while i < len(orientations) - 1:
     sendNode(orientations[i])
@@ -796,4 +793,3 @@ while i < len(orientations) - 1:
         print(s)
     i += 1
     #print("No path found!")
-'''
