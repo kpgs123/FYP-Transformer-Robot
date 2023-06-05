@@ -244,7 +244,7 @@ while True:
                         z_rot=z_rot+180
                     else:
                         z_rot= z_rot-180  
-                   
+                correct_orientation = False
                 move_robot_to_coordinates(x, y)
                         # Keep moving the robot until it reaches the desired position and orientation
                 if x_flag == True and y_flag==True: 
@@ -299,7 +299,7 @@ while True:
                         z_rot=z_rot+180
                     else:
                         z_rot= z_rot-180  
-                   
+                correct_orientation = False
                 move_robot_to_coordinates(x, y)
                         # Keep moving the robot until it reaches the desired position and orientation
                 if x_flag == True and y_flag==True: 
