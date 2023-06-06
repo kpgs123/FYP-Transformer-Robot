@@ -16,7 +16,7 @@ tracked =[]
 ser = serial.Serial('COM4', 9600, timeout=1)
 
 # Tolerance for reaching a position
-tolerance = 12  # Adjust the tolerance as per your requirements
+tolerance = 8  # Adjust the tolerance as per your requirements
 
 # ArUco dictionary and parameters
 dict_aruco = aruco.Dictionary_get(aruco.DICT_4X4_50)
@@ -47,13 +47,14 @@ pathM = {
 
 pathO1 = pathM['O']
 pathO = [(y, x) for x, y in pathO1]
+pathT = pathO.copy()
 #pathO = pathM['O']
 pathI1 = pathM['I']
 pathI = [(y, x) for x, y in pathI1]
-
+pathT.extend(pathI)
 # Extracting x and y values from the first set of coordinates
-x1 = [coord[0] for coord in pathO]
-y1 = [coord[1] for coord in pathO]
+x1 = [coord[0] for coord in pathT]
+y1 = [coord[1] for coord in pathT]
 
 centroid_buffer = []  # Global variable for storing centroid positions
 
@@ -157,14 +158,18 @@ def move_robot_to_coordinates(x, y):
     dy = y - robot_y
 
     # Move diagonally
-    '''if dx < -tolerance and dy < -tolerance:
-        command = '7'  # Forward Left
+    if dx < -tolerance and dy < -tolerance:
+        command = '3'  # Forward Left
     elif dx > tolerance and dy < -tolerance:
-        command = '9'  # Forward Right
+        command = '1'  # Forward Right
     elif dx < -tolerance and dy > tolerance:
-        command = '3'  # Backward Left
+        command = '9'  # Backward Left
     elif dx > tolerance and dy > tolerance:
-        command = '1'  # Backward Right'''
+        command = '7'  # Backward Right'''.
+    else:
+        command = ''
+    if command:
+        send_command_to_esp32(command)
     # Move horizontally
     if dx < -tolerance:
         command = '6'  # Right
@@ -272,23 +277,6 @@ while True:
 
 
 
-# Extracting x and y values from the second set of coordinates
-x2 = [coord[0] for coord in tracked]
-y2 = [coord[1] for coord in tracked]
-# Plotting the coordinates
-plt.plot(x1, y1, 'r', label='Given path')
-plt.plot(x2, y2, 'b', label='Tracked path')
-
-# Adding labels and title
-plt.xlabel('X-axis')
-plt.ylabel('Y-axis')
-plt.title('Given path vs Tracked path')
-
-# Adding a legend
-plt.legend()
-
-# Displaying the graph
-plt.show()
 
 
 
@@ -321,6 +309,7 @@ while True:
             z_rot= z_rot-180
         centroid = np.mean(corners[0][0], axis=0)
         centroid_buffer.append(centroid)
+        tracked.append(centroid)
         if len(centroid_buffer) > filter_size:
             centroid_buffer.pop(0)
         print(centroid_buffer[-1])
@@ -351,3 +340,21 @@ while True:
 if cv2.getWindowProperty('frame', cv2.WND_PROP_VISIBLE) != 0:
     cv2.destroyWindow('frame')
 
+
+# Extracting x and y values from the second set of coordinates
+x2 = [coord[0] for coord in tracked]
+y2 = [coord[1] for coord in tracked]
+# Plotting the coordinates
+plt.plot(x1, y1, 'r', label='Given path')
+plt.plot(x2, y2, 'b', label='Tracked path')
+
+# Adding labels and title
+plt.xlabel('X-axis')
+plt.ylabel('Y-axis')
+plt.title('Given path vs Tracked path')
+
+# Adding a legend
+plt.legend()
+
+# Displaying the graph
+plt.show()
