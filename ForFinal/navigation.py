@@ -5,14 +5,15 @@ from cv2 import aruco
 import numpy as np
 import math
 import queue, threading
+import matplotlib.pyplot as plt
 
 '''path ={'O': [(360, 405), (345, 390), (330, 375), (330, 360), (330, 345), (330, 330), (330, 315), (330, 300), (330, 285), (330, 270), (330, 255), (330, 240), (330, 225), (330, 210), (330, 195), (330, 180), (330, 165), (330, 150), 
 (330, 135), (330, 120), (315, 105), (300, 90), (300, 90), (315, 90), (330, 90), (345, 90), (360, 90), (375, 90), (390, 
 90), (405, 90), (420, 90), (435, 90)], 'I': [(435, 90), (420, 90), (405, 90), (390, 90), (375, 90), (360, 90), (345, 90), (330, 90), (315, 90), (300, 90), (285, 90), (270, 105), (255, 105), (240, 105), (225, 105), (210, 105), (195, 105), 
 (180, 105), (165, 105), (150, 105), (135, 105), (120, 90)]}'''
-
+tracked =[]
 # Serial communication with the robot
-ser = serial.Serial('COM6', 9600, timeout=1)
+ser = serial.Serial('COM4', 9600, timeout=1)
 
 # Tolerance for reaching a position
 tolerance = 12  # Adjust the tolerance as per your requirements
@@ -50,9 +51,17 @@ pathO = [(y, x) for x, y in pathO1]
 pathI1 = pathM['I']
 pathI = [(y, x) for x, y in pathI1]
 
+# Extracting x and y values from the first set of coordinates
+x1 = [coord[0] for coord in pathO]
+y1 = [coord[1] for coord in pathO]
+
 centroid_buffer = []  # Global variable for storing centroid positions
 
 correct_orientation = False
+# Plotting pathO real coordinates
+pathO_real_x = [coord[0] for coord in pathO]
+pathO_real_y = [coord[1] for coord in pathO]
+
 
 
 class VideoCapture:
@@ -167,7 +176,7 @@ def move_robot_to_coordinates(x, y):
         x_flag = True
     if command:
         send_command_to_esp32(command)  # Send the vertical movement command
-    
+    global tracked
     while True:
         ret, frame = cap.read()
         frame = cv2.rotate(frame, cv2.ROTATE_180)
@@ -184,6 +193,7 @@ def move_robot_to_coordinates(x, y):
             rvec = np.array(rvec).reshape((3,))
             R, _ = cv2.Rodrigues(rvec)
             centroid = np.mean(corners[0][0], axis=0)
+            tracked.append(centroid)
             if ret:
                 break
 
@@ -226,6 +236,7 @@ while True:
             z_rot= z_rot-180
         centroid = np.mean(corners[0][0], axis=0)
         centroid_buffer.append(centroid)
+        tracked.append(centroid)
         if len(centroid_buffer) > filter_size:
             centroid_buffer.pop(0)
         print(centroid_buffer[-1])
@@ -244,7 +255,7 @@ while True:
                         z_rot=z_rot+180
                     else:
                         z_rot= z_rot-180  
-                correct_orientation = False
+                #correct_orientation = False
                 move_robot_to_coordinates(x, y)
                         # Keep moving the robot until it reaches the desired position and orientation
                 if x_flag == True and y_flag==True: 
@@ -252,8 +263,34 @@ while True:
                     x_flag=False
                     y_flag=False
 
+    else:
+        send_command_to_esp32('a')
+
     if cv2.waitKey(1) & 0xFF == ord('q') or len(pathO) == 0:
         break
+
+
+
+
+# Extracting x and y values from the second set of coordinates
+x2 = [coord[0] for coord in tracked]
+y2 = [coord[1] for coord in tracked]
+# Plotting the coordinates
+plt.plot(x1, y1, 'r', label='Given path')
+plt.plot(x2, y2, 'b', label='Tracked path')
+
+# Adding labels and title
+plt.xlabel('X-axis')
+plt.ylabel('Y-axis')
+plt.title('Given path vs Tracked path')
+
+# Adding a legend
+plt.legend()
+
+# Displaying the graph
+plt.show()
+
+
 
 
 #########################################
@@ -275,6 +312,8 @@ while True:
         rvec, _, _ = aruco.estimatePoseSingleMarkers(corners, 0.015, camera_matrix, dist_coeffs)
         rvec = np.array(rvec).reshape((3,))
         R, _ = cv2.Rodrigues(rvec)
+        if rvec.size != 3:
+            continue
         z_rot = round(math.degrees(math.atan2(R[1, 0], R[0, 0])), 2)
         if z_rot<0:
             z_rot=z_rot+180
@@ -299,7 +338,7 @@ while True:
                         z_rot=z_rot+180
                     else:
                         z_rot= z_rot-180  
-                correct_orientation = False
+                #correct_orientation = False
                 move_robot_to_coordinates(x, y)
                         # Keep moving the robot until it reaches the desired position and orientation
                 if x_flag == True and y_flag==True: 

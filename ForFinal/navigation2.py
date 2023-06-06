@@ -5,11 +5,11 @@ from cv2 import aruco
 import numpy as np
 import math
 import queue, threading
-import maze
+import maze2
 
 
 # Serial communication with the robot
-ser = serial.Serial('COM6', 9600, timeout=1)
+ser = serial.Serial('COM4', 9600, timeout=1)
 
 # Tolerance for reaching a position
 tolerance = 12  # Adjust the tolerance as per your requirements
@@ -39,7 +39,7 @@ centroid_buffer = []
 
 
 
-pathM=maze.final_path
+pathM=maze2.final_path
 pathO1 = pathM['O']
 pathO = [(y, x) for x, y in pathO1]
 #pathO = pathM['O']
@@ -240,13 +240,18 @@ while True:
                         z_rot=z_rot+180
                     else:
                         z_rot= z_rot-180  
-                   
+                correct_orientation = False   
                 move_robot_to_coordinates(x, y)
                         # Keep moving the robot until it reaches the desired position and orientation
                 if x_flag == True and y_flag==True: 
                     pathO.pop(0)  # Remove the visited target from the path
                     x_flag=False
                     y_flag=False
+
+    '''else:
+        send_command_to_esp32('a')
+        send_command_to_esp32('c')'''
+        
 
     if cv2.waitKey(1) & 0xFF == ord('q') or len(pathO) == 0:
         break
@@ -269,6 +274,8 @@ while True:
 
     if len(corners) > 0:
         rvec, _, _ = aruco.estimatePoseSingleMarkers(corners, 0.015, camera_matrix, dist_coeffs)
+        if rvec.size != 3:
+            continue
         rvec = np.array(rvec).reshape((3,))
         R, _ = cv2.Rodrigues(rvec)
         z_rot = round(math.degrees(math.atan2(R[1, 0], R[0, 0])), 2)
@@ -295,7 +302,7 @@ while True:
                         z_rot=z_rot+180
                     else:
                         z_rot= z_rot-180  
-                   
+                correct_orientation = False   
                 move_robot_to_coordinates(x, y)
                         # Keep moving the robot until it reaches the desired position and orientation
                 if x_flag == True and y_flag==True: 
