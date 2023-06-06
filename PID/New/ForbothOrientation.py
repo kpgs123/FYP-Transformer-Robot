@@ -12,7 +12,7 @@ import queue, threading
 (180, 105), (165, 105), (150, 105), (135, 105), (120, 90)]}'''
 
 # Serial communication with the robot
-ser = serial.Serial('COM6', 9600, timeout=1)
+ser = serial.Serial('COM4', 9600, timeout=1)
 
 # Tolerance for reaching a position
 tolerance = 12  # Adjust the tolerance as per your requirements

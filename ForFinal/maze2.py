@@ -45,17 +45,16 @@ start_y = 0  # Starting y-coordinate of the ROI
 end_x = 700   # Ending x-coordinate of the ROI
 end_y = 600   # Ending y-coordinate of the ROI
 
+cap = cv.VideoCapture(url)
 
-
-#cap = cv.VideoCapture(url)
 no_marker_count = 0
 Threshold_no_marker = 55
 
 fps_limit = 10  # Desired frame rate
 frame_interval = 1 / fps_limit  # Time interval between frames
 
-frame = cv.imread("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/pic5/picture1.jpg")
-
+#frame = cv.imread("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/pic5/picture1.jpg")
+ret, frame = cap.read()
 # Undistort the frame
 undistorted_frame = cv.undistort(frame, camera_matrix, dist_coeffs)
 
@@ -98,7 +97,7 @@ masked_image = cv.bitwise_and(img, img, mask=binary_image)
 
 # Define lower and upper thresholds for brown
 lower_brown = (50, 75, 40)
-upper_brown = (130, 255, 255)
+upper_brown = (150, 255, 255)
 
 # Create binary mask using inRange function
 brown_mask = cv.inRange(hsv, lower_brown, upper_brown)
@@ -177,7 +176,7 @@ def virtualBarrier(t):
           if j+t < c and i-t > 0:
             maze_with_barries[i-t, j+t] = 1
   return maze_with_barries
-maze = virtualBarrier(2)
+maze = virtualBarrier(5)
 maze = np.array(maze)
 maze = maze.astype(np.int32)
 np.save("maze.npy", maze)
@@ -191,8 +190,8 @@ image = np.float32(maze) * 255
 print(image.shape)
 
 # Create Gaussian kernel
-kernel_size = (40, 40)  # Adjust the kernel size for desired thickness
-sigma = 1250  # Adjust the sigma value for the spread of the Gaussian
+kernel_size = (50, 50)  # Adjust the kernel size for desired thickness
+sigma = 2500  # Adjust the sigma value for the spread of the Gaussian
 gaussian_kernel = cv.getGaussianKernel(kernel_size[0], sigma) @ cv.getGaussianKernel(kernel_size[1], sigma).T
 #box_kernel_img = cv.boxFilter(image, -1, kernel_size)
 
@@ -368,8 +367,8 @@ def is_obstcle_inside_the_shape_o(x1, x2, y1, y2, grid, threshold=2500):
 goal = (400, 50)'''
 
 
-frame = cv.imread("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/imgesOfRobo/image1.jpg")
-#ret, frame = cap.read()
+#frame = cv.imread("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/imgesOfRobo/image1.jpg")
+ret, frame = cap.read()
 
 # Undistort the frame
 undistorted_frame = cv.undistort(frame, camera_matrix, dist_coeffs)
@@ -411,7 +410,9 @@ if len(corners) > 0:
     start = tuple(map(nearest_pix_cord, map(int, centroid)))
     print(start)
 
-goal = (120,90) # must provide integer multiplication of t
+#goal = (120,90) # must provide integer multiplication of t
+goal = (510,510)
+#goal = (540,120)
 
 # find the shortest path from start to goal using the A* algorithm
 print(maze.shape)
@@ -461,7 +462,7 @@ for i in range(len(path)-1):
     cv.polylines(new_img, [points], isClosed=True, color=color, thickness=thickness)
 
 
-    if is_obstcle_inside_the_shape_o(x_set[0], x_set[1], y_set[0], y_set[1], maze):
+    if is_obstcle_inside_the_shape_o(x_set[0], x_set[1], y_set[0], y_set[1], maze, 3000):
        coll_cord = path[i]
        final_path['O'] = path[:i]
        print(coll_cord)
@@ -692,8 +693,8 @@ plt.imshow(new_img)
 keyboard.on_press(close_figure)
 plt.show()
 
+
 orientations = []
-'''
 shape_nodes = final_path['O']
 print(shape_nodes)
 for node_index in range(len(shape_nodes)-1):
@@ -724,10 +725,10 @@ for node_index in range(len(shape_nodes)-1):
 print(orientations)
 
 # Replace "/dev/tty.SLAB_USBtoUART" with the Bluetooth serial port of your ESP32
-ser = serial.Serial('COM6', 9600, timeout=1)
+#ser = serial.Serial('COM6', 9600, timeout=1)
 
 # Define a callback function to handle key presses
-def sendNode(oreintation):
+'''def sendNode(oreintation):
     #t1 = time.time()
     #t2 = time.time()
     ser.write(str(oreintation).encode())
@@ -738,6 +739,7 @@ def sendNode(oreintation):
 sendNode(i)'''
 
 # Keep the program running to allow key presses to be detected
+'''
 i = 0
 while i < len(orientations) - 1:
     sendNode(orientations[i])
@@ -748,9 +750,9 @@ while i < len(orientations) - 1:
         print(s)
     i += 1
     #print("No path found!")
+'''
 
 orientations = []
-'''
 shape_nodes = final_path['I']
 
 for node_index in range(len(shape_nodes)-1):
@@ -775,13 +777,14 @@ for node_index in range(len(shape_nodes)-1):
     elif x2 - x1 > 0 and y2 - y1 < 0:
         direction = '9'
         
-    orientations.append(direction)'''
+    orientations.append(direction)
 
 print(orientations)
 
-sendNode('i')
+#sendNode('i')
 
 # Keep the program running to allow key presses to be detected
+'''
 i = 0
 while i < len(orientations) - 1:
     sendNode(orientations[i])
@@ -792,3 +795,4 @@ while i < len(orientations) - 1:
         print(s)
     i += 1
     #print("No path found!")
+'''
