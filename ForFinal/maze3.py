@@ -192,7 +192,7 @@ print(image.shape)
 
 # Create Gaussian kernel
 kernel_size = (60, 60)  # Adjust the kernel size for desired thickness
-sigma = 5000  # Adjust the sigma value for the spread of the Gaussian
+sigma = 20000  # Adjust the sigma value for the spread of the Gaussian
 gaussian_kernel = cv.getGaussianKernel(kernel_size[0], sigma) @ cv.getGaussianKernel(kernel_size[1], sigma).T
 #box_kernel_img = cv.boxFilter(image, -1, kernel_size)
 
@@ -280,9 +280,9 @@ def astar(start, goal, grid, prox_grid, shape = 'o'):
 
             cond = (abs(pos[0] - neighbor[0])) and abs(pos[1] - neighbor[1])
             if brown_mask_bool[pos[0], pos[1]] == 0:
-                g = cost_for_collision/255 * 1.2
+                g = cost_for_collision/2550 * 1.2
             else:
-                g = cost_for_collision/255
+                g = cost_for_collision/2550
             if not cond:
                 g += f + 1*t
             else:
@@ -417,8 +417,10 @@ if len(corners) > 0:
 
 #goal = (120,90) # must provide integer multiplication of t = 15
 #goal = (90,60)
+
 goal = tuple(map(nearest_pix_cord, [150, 200]))
-#goal = tuple(map(nearest_pix_cord, [90, 210]))
+#goal = tuple(map(nearest_pix_cord, [90, 60]))
+#goal = tuple(map(nearest_pix_cord, [120, 90]))
 
 # find the shortest path from start to goal using the A* algorithm
 print(maze.shape)
@@ -532,7 +534,7 @@ if not finished:
 
         
     dic_last_cord_to_turning_cord = {}
-    for back_cord in path[i::-1]:
+    for back_cord in path[i-1::-1]:
         dic_last_cord_to_turning_cord[back_cord] = heuristic(back_cord, turning_cord)
 
     min_key, min_value = find_minimum(dic_last_cord_to_turning_cord)
