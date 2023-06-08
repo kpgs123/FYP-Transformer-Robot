@@ -5,7 +5,8 @@ from cv2 import aruco
 import numpy as np
 import math
 import queue, threading
-import maze2
+import matplotlib.pyplot as plt
+import maze3
 
 
 # Serial communication with the robot
@@ -19,8 +20,8 @@ dict_aruco = aruco.Dictionary_get(aruco.DICT_4X4_50)
 parameters = aruco.DetectorParameters_create()
 
 # Camera calibration matrices
-camera_matrix = np.load("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/CaliFinal/camera_matrix.npy")
-dist_coeffs = np.load("G:/sem 7/FYP/New Git/FYP-Transformer-Robot/CaliFinal/distortion_coeffs.npy")
+camera_matrix = np.load("E:/sem 7-------------/Final Year Design Project/final/FYP-Transformer-Robot/CaliFinal/camera_matrix.npy")
+dist_coeffs = np.load("E:/sem 7-------------/Final Year Design Project/final/FYP-Transformer-Robot/CaliFinal/distortion_coeffs.npy")
 
 
 start_x = 100  # Starting x-coordinate of the ROI
@@ -39,12 +40,21 @@ centroid_buffer = []
 
 
 
-pathM=maze2.final_path
+pathM=maze3.final_path
 pathO1 = pathM['O']
 pathO = [(y, x) for x, y in pathO1]
+pathT = pathO.copy()
 #pathO = pathM['O']
-pathI1 = pathM['I']
-pathI = [(y, x) for x, y in pathI1] 
+only_O = False
+try:
+    pathI1 = pathM['I']
+    pathI = [(y, x) for x, y in pathI1]
+    pathT.extend(pathI)
+except:
+    only_O = True
+# Extracting x and y values from the first set of coordinates
+x1 = [coord[0] for coord in pathT]
+y1 = [coord[1] for coord in pathT]
 
 centroid_buffer = []  # Global variable for storing centroid positions
 
@@ -132,6 +142,7 @@ def pi_controller(target, current, kp=0.1, ki=0.01):
 x_flag= False
 y_flag=False
 
+tracked = []
 def move_robot_to_coordinates(x, y):
     global centroid_buffer  # Declare centroid_buffer as a global variable
 
@@ -180,6 +191,7 @@ def move_robot_to_coordinates(x, y):
             rvec = np.array(rvec).reshape((3,))
             R, _ = cv2.Rodrigues(rvec)
             centroid = np.mean(corners[0][0], axis=0)
+            tracked.append(centroid)
             if ret:
                 break
 
@@ -222,6 +234,7 @@ while True:
             z_rot= z_rot-180
         centroid = np.mean(corners[0][0], axis=0)
         centroid_buffer.append(centroid)
+        tracked.append(centroid)
         if len(centroid_buffer) > filter_size:
             centroid_buffer.pop(0)
         print(centroid_buffer[-1])
@@ -257,8 +270,9 @@ while True:
         break
 
 
-#########################################
-send_command_to_esp32('i')
+
+if not only_O:
+    send_command_to_esp32('i')
 x_flag= False
 y_flag=False
 centroid_buffer = []  # Global variable for storing centroid positions
@@ -285,33 +299,51 @@ while True:
             z_rot= z_rot-180
         centroid = np.mean(corners[0][0], axis=0)
         centroid_buffer.append(centroid)
+        tracked.append(centroid)
         if len(centroid_buffer) > filter_size:
             centroid_buffer.pop(0)
         print(centroid_buffer[-1])
+        if not only_O:
+            if len(pathI) > 0:
+                    x, y = pathI[0]  # Get the next target coordinates from the path
 
-        if len(pathI) > 0:
-                x, y = pathI[0]  # Get the next target coordinates from the path
+                    while not correct_orientation:
+                        correct_orientation = keep_robot_fixed_orientation(z_rot)
 
-                while not correct_orientation:
-                    correct_orientation = keep_robot_fixed_orientation(z_rot)
-
-                    # Update the current robot position and rotation
-                    robot_x, robot_y = centroid_buffer[-1]
-                    z_rot = round(math.degrees(math.atan2(R[1, 0], R[0, 0])), 2)
-                    if z_rot<0:
-                        z_rot=z_rot+180
-                    else:
-                        z_rot= z_rot-180  
-                correct_orientation = False   
-                move_robot_to_coordinates(x, y)
-                        # Keep moving the robot until it reaches the desired position and orientation
-                if x_flag == True and y_flag==True: 
-                    pathI.pop(0)  # Remove the visited target from the path
-                    x_flag=False
-                    y_flag=False
-
-    if cv2.waitKey(1) & 0xFF == ord('q') or len(pathI) == 0:
-        break
+                        # Update the current robot position and rotation
+                        robot_x, robot_y = centroid_buffer[-1]
+                        z_rot = round(math.degrees(math.atan2(R[1, 0], R[0, 0])), 2)
+                        if z_rot<0:
+                            z_rot=z_rot+180
+                        else:
+                            z_rot= z_rot-180  
+                    correct_orientation = False   
+                    move_robot_to_coordinates(x, y)
+                            # Keep moving the robot until it reaches the desired position and orientation
+                    if x_flag == True and y_flag==True: 
+                        pathI.pop(0)  # Remove the visited target from the path
+                        x_flag=False
+                        y_flag=False
+    if not only_O:
+        if cv2.waitKey(1) & 0xFF == ord('q') or len(pathI) == 0:
+            break
 if cv2.getWindowProperty('frame', cv2.WND_PROP_VISIBLE) != 0:
     cv2.destroyWindow('frame')
 
+# Extracting x and y values from the second set of coordinates
+x2 = [coord[0] for coord in tracked]
+y2 = [coord[1] for coord in tracked]
+# Plotting the coordinates
+plt.plot(x1, y1, 'r', label='Given path')
+plt.plot(x2, y2, 'b', label='Tracked path')
+
+# Adding labels and titleO
+plt.xlabel('X-axis')
+plt.ylabel('Y-axis')
+plt.title('Given path vs Tracked path')
+
+# Adding a legend
+plt.legend()
+
+# Displaying the graph
+plt.show()

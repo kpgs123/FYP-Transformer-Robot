@@ -37,15 +37,15 @@ url = "rtsp://root:abcd@192.168.0.90/axis-media/media.amp?camera=1"
 #cap = cv.videoCapture(url)
 path = np.empty((0, 2), float)
 
-camera_matrix = np.load("D:/Git/FYP-Transformer-Robot/CaliFinal/camera_matrix.npy")
-dist_coeffs = np.load("D:/Git/FYP-Transformer-Robot/CaliFinal/distortion_coeffs.npy")
+camera_matrix = np.load("E:/sem 7-------------/Final Year Design Project/final/FYP-Transformer-Robot/CaliFinal/camera_matrix.npy")
+dist_coeffs = np.load("E:/sem 7-------------/Final Year Design Project/final/FYP-Transformer-Robot/CaliFinal/distortion_coeffs.npy")
 # Define the region of interest (ROI) to crop
 start_x = 100  # Starting x-coordinate of the ROI
 start_y = 0  # Starting y-coordinate of the ROI
 end_x = 700   # Ending x-coordinate of the ROI
 end_y = 600   # Ending y-coordinate of the ROI
 
-#cap = cv.VideoCapture(url)
+cap = cv.VideoCapture(url)
 
 no_marker_count = 0
 Threshold_no_marker = 55
@@ -53,8 +53,8 @@ Threshold_no_marker = 55
 fps_limit = 10  # Desired frame rate
 frame_interval = 1 / fps_limit  # Time interval between frames
 
-frame = cv.imread("D:/Git/FYP-Transformer-Robot/picFinal2/picture1.jpg")
-#ret, frame = cap.read()
+#frame = cv.imread("E:/sem 7-------------/Final Year Design Project/final/FYP-Transformer-Robot/picFinal6/picture1.jpg")
+ret, frame = cap.read()
 # Undistort the frame
 undistorted_frame = cv.undistort(frame, camera_matrix, dist_coeffs)
 
@@ -79,7 +79,7 @@ print(hsv[440, 70])
 
 # Define the range of hue, saturation, and value values to keep
 lower_threshold = (0, 0, 0)
-upper_threshold = (160, 255, 255)
+upper_threshold = (120, 255, 255)
 
 # Threshold the image to create a binary image
 binary_image = cv.inRange(hsv, lower_threshold, upper_threshold)
@@ -280,13 +280,13 @@ def astar(start, goal, grid, prox_grid, shape = 'o'):
 
             cond = (abs(pos[0] - neighbor[0])) and abs(pos[1] - neighbor[1])
             if brown_mask_bool[pos[0], pos[1]] == 0:
-                g = cost_for_collision/2550 * 1.2
+                g = cost_for_collision/2550/5 * 1.2
             else:
-                g = cost_for_collision/2550
+                g = cost_for_collision/2550/5
             if not cond:
                 g += f + 1*t
             else:
-                g += f + math.sqrt(2)*t*20
+                g += f + math.sqrt(2)*t*10
                 #g = f + 2*t**2
 
             h = heuristic(neighbor, goal)
@@ -372,8 +372,8 @@ def is_obstcle_inside_the_shape_o(x1, x2, y1, y2, grid, threshold=2500):
 goal = (400, 50)'''
 
 
-frame = cv.imread("D:/Git/FYP-Transformer-Robot/imgesOfRobo/image1.jpg")
-#ret, frame = cap.read()
+#frame = cv.imread("E:/sem 7-------------/Final Year Design Project/final/FYP-Transformer-Robot/imgesOfRobo/image1.jpg")
+ret, frame = cap.read()
 
 # Undistort the frame
 undistorted_frame = cv.undistort(frame, camera_matrix, dist_coeffs)
@@ -418,9 +418,9 @@ if len(corners) > 0:
 #goal = (120,90) # must provide integer multiplication of t = 15
 #goal = (90,60)
 
-goal = tuple(map(nearest_pix_cord, [150, 200]))
-#goal = tuple(map(nearest_pix_cord, [90, 60]))
-#goal = tuple(map(nearest_pix_cord, [120, 90]))
+goal = tuple(map(nearest_pix_cord, [130, 240]))
+#goal = tuple(map(nearest_pix_cord, [90, 120]))
+#goal = tuple(map(nearest_pix_cord, [570, 190]))
 
 # find the shortest path from start to goal using the A* algorithm
 print(maze.shape)
@@ -470,16 +470,17 @@ for i in range(len(path)-1):
     cv.polylines(new_img, [points], isClosed=True, color=color, thickness=thickness)
 
 
-    if is_obstcle_inside_the_shape_o(x_set[0], x_set[1], y_set[0], y_set[1], maze, 5000):
+    if is_obstcle_inside_the_shape_o(x_set[0], x_set[1], y_set[0], y_set[1], maze, 2500):
        coll_cord = path[i]
        final_path['O'] = path[:i]
        print(coll_cord)
        break
 else:
     finished = True
+    final_path['O'] = path
 
 plt.imshow(new_img)
-# Register the callback function for any key press event
+# Register the callback function for any key press eventkk
 keyboard.on_press(close_figure)
 plt.show()
 
